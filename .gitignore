@@ -1,0 +1,59 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-error.log
+pnpm-debug.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+/log
+*.log
+logs/*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Coverage files
+coverage/
+.nyc_output/
+
+# Build files
+dist/
+build/
+.cache/
+.tmp/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# PM2 process manager files
+pids/
+*.pid
+*.seed
+*.log
+
+# Misc
+!.gitkeep

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add DJ - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .form-container {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .input-field {
+            background: rgba(45, 55, 72, 0.9);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .submit-btn {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+        }
+        .file-input {
+            transition: all 0.3s ease;
+        }
+        .file-input:hover {
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="attractive-heading">🎧 Add a New DJ</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg form-container p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-center mb-8 text-blue-300">Enter DJ Details</h2>
+                <% if (typeof message !== 'undefined' && message) { %>
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r-lg">
+                        <p class="text-center"><%= message %></p>
+                    </div>
+                    <script>
+                        setTimeout(() => {
+                            window.location.href = "/dashboard";
+                        }, 2000);
+                    </script>
+                <% } %>
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r-lg">
+                        <p class="text-center"><%= error %></p>
+                    </div>
+                <% } %>
+                <form class="space-y-6" method="POST" action="/add-dj" enctype="multipart/form-data">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300 mb-1">DJ Name</label>
+                        <input 
+                            id="name" 
+                            name="name" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., DJ Alex" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="genre" class="block text-sm font-medium text-gray-300 mb-1">Genre</label>
+                        <input 
+                            id="genre" 
+                            name="genre" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., Hip Hop" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="experience" class="block text-sm font-medium text-gray-300 mb-1">Experience (Years)</label>
+                        <input 
+                            id="experience" 
+                            name="experience" 
+                            type="number" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 5" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-300 mb-1">Price (₹)</label>
+                        <input 
+                            id="price" 
+                            name="price" 
+                            type="number" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 5000" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="sinceYear" class="block text-sm font-medium text-gray-300 mb-1">Since Year</label>
+                        <input 
+                            id="sinceYear" 
+                            name="sinceYear" 
+                            type="number" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 2018" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="nextAvailableDates" class="block text-sm font-medium text-gray-300 mb-1">Next Available Dates (Optional)</label>
+                        <input 
+                            id="nextAvailableDates" 
+                            name="nextAvailableDates" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., Mar 1-3, 2025"
+                        >
+                    </div>
+                    <div>
+                        <label for="ownerName" class="block text-sm font-medium text-gray-300 mb-1">Owner Name</label>
+                        <input 
+                            id="ownerName" 
+                            name="ownerName" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., John Doe" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="mobile" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
+                        <input 
+                            id="mobile" 
+                            name="mobile" 
+                            type="tel" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 9876543210" 
+                            pattern="[0-9]{10}" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-300 mb-1">DJ Address</label>
+                        <textarea 
+                            id="address" 
+                            name="address" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            rows="3" 
+                            placeholder="e.g., 123 Music Lane, Mumbai" 
+                            required
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label for="restrictions" class="block text-sm font-medium text-gray-300 mb-1">Restrictions (Optional)</label>
+                        <textarea 
+                            id="restrictions" 
+                            name="restrictions" 
+                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            rows="3" 
+                            placeholder="e.g., No events after midnight"
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">DJ Photo (Optional)</label>
+                        <input 
+                            id="photo" 
+                            name="photo" 
+                            type="file" 
+                            accept="image/*" 
+                            class="file-input w-full px-4 py-2 border border-zinc-600 rounded-lg text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition"
+                        >
+                    </div>
+                    <div>
+                        <label for="ownerPhoto" class="block text-sm font-medium text-gray-300 mb-1">Owner Photo (Optional)</label>
+                        <input 
+                            id="ownerPhoto" 
+                            name="ownerPhoto" 
+                            type="file" 
+                            accept="image/*" 
+                            class="file-input w-full px-4 py-2 border border-zinc-600 rounded-lg text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-700 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition"
+                        >
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="submit-btn w-full px-4 py-3 rounded-lg text-white font-semibold"
+                    >
+                        Add DJ
+                    </button>
+                </form>
+                <p class="text-center mt-6 text-sm">
+                    <a href="/dashboard" class="text-blue-400 hover:underline hover:text-blue-300 transition">Back to Dashboard</a>
+                </p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

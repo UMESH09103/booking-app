@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQO0bSHPfLC7hVO0UAIjoECC_4oA-5f0e5-fw&s');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Optional: keeps background fixed */
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6); /* Slightly darker overlay for contrast */
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280); /* Teal to Gray gradient */
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+        }
+        .profile-card {
+            background: linear-gradient(135deg, #2d3748, #1a202c); /* Gradient background */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .detail-item {
+            background: rgba(45, 55, 72, 0.8); /* Slightly transparent background */
+            transition: background 0.3s ease;
+        }
+        .detail-item:hover {
+            background: rgba(66, 153, 225, 0.1); /* Subtle hover effect */
+        }
+        .btn-back {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff); /* Sky blue to white gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem; /* Larger text */
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Overlay for entire content -->
+    <div class="overlay flex flex-col min-h-screen">
+        <!-- Navbar -->
+        <header class="header-gradient p-4 flex justify-between items-center shadow-lg sticky top-0 z-10">
+            <h1 class="attractive-heading">🎧 Your Profile, <%= user.username %></h1>
+            <div class="flex items-center space-x-4">
+                <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
+                <form action="/logout" method="POST">
+                    <button class="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-700 transition font-medium">Logout</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg profile-card p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold text-center mb-8 text-blue-300">Profile Details</h2>
+                
+                <!-- Profile Card -->
+                <div class="space-y-6">
+                    <div class="detail-item flex items-center justify-between p-4 rounded-lg">
+                        <span class="text-gray-300 font-medium text-lg">Username</span>
+                        <span class="text-blue-300 font-semibold text-lg"><%= user.username %></span>
+                    </div>
+                    <div class="detail-item flex items-center justify-between p-4 rounded-lg">
+                        <span class="text-gray-300 font-medium text-lg">Email</span>
+                        <span class="text-blue-300 font-semibold text-lg"><%= user.email %></span>
+                    </div>
+                    <div class="detail-item flex items-center justify-between p-4 rounded-lg">
+                        <span class="text-gray-300 font-medium text-lg">Age</span>
+                        <span class="text-blue-300 font-semibold text-lg"><%= user.age %></span>
+                    </div>
+                </div>
+
+                <!-- Back Button -->
+                <div class="mt-10 text-center">
+                    <a href="/dashboard" class="btn-back inline-block px-8 py-3 rounded-lg text-white font-medium">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-800 p-6 text-center">
+            <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
+        </footer>
+    </div>
+</body>
+</html>

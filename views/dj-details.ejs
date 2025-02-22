@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= dj.name %> Details - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .detail-card {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .detail-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .btn-book, .btn-back {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        .btn-book:hover, .btn-back:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <header class="header-gradient p-4 sticky top-0 z-10">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="attractive-heading">🎧 <%= dj.name %> Details</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg detail-card p-8 rounded-xl shadow-lg">
+                <img 
+                    src="<%= dj.photo || 'https://via.placeholder.com/150?text=' + dj.name %>" 
+                    alt="<%= dj.name %>" 
+                    class="w-full h-48 object-cover rounded-t-xl mb-6"
+                >
+                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">DJ & Owner Information</h2>
+                <div class="space-y-4">
+                    <p class="text-gray-400">📷 <strong>Owner Photo:</strong> 
+                        <img 
+                            src="<%= dj.ownerPhoto || 'https://via.placeholder.com/50?text=Owner' %>" 
+                            alt="Owner Photo" 
+                            class="inline-block w-12 h-12 rounded-full"
+                        >
+                    </p>
+                    <p class="text-gray-400">🎧 <strong>DJ Name:</strong> <span class="text-blue-300"><%= dj.name %></span></p>
+                    <p class="text-gray-400">👤 <strong>Owner Name:</strong> <span class="text-teal-300"><%= dj.ownerName %></span></p>
+                    <p class="text-gray-400">📅 <strong>Since:</strong> <span class="text-purple-300"><%= dj.sinceYear %></span></p>
+                    <p class="text-gray-400">🏠 <strong>Address:</strong> <span class="text-gray-300"><%= dj.address %></span></p>
+                    <p class="text-gray-400">📞 <strong>Mobile Number:</strong> <span class="text-pink-300"><%= dj.mobile %></span></p>
+                    <p class="text-gray-400">💰 <strong>Minimum Price:</strong> <span class="text-yellow-300">₹<%= dj.price %></span></p>
+                    <p class="text-gray-400">🚫 <strong>Restrictions:</strong> <span class="text-orange-300"><%= dj.restrictions || 'No specific restrictions' %></span></p>
+                </div>
+                <div class="mt-8 flex space-x-4 justify-center">
+                    <a href="/book/<%= dj.name %>" class="btn-book inline-block px-6 py-3 rounded-lg text-white font-medium">Book Now</a>
+                    <a href="/dashboard" class="btn-back inline-block px-6 py-3 rounded-lg text-white font-medium">Back to Dashboard</a>
+                </div>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 p-6 text-center">
+            <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
+        </footer>
+    </div>
+</body>
+</html>

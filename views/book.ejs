@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book <%= djName %> - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('/images/dev.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            text-align: center;
+        }
+        .form-container {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .input-field, .textarea-field {
+            background: rgba(45, 55, 72, 0.9);
+            transition: all 0.3s ease;
+        }
+        .input-field:focus, .textarea-field:focus {
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .file-input {
+            transition: all 0.3s ease;
+        }
+        .file-input:hover {
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .submit-btn {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <header class="header-gradient">
+            <h1 class="attractive-heading">Book <%= djName %></h1>
+        </header>
+
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg form-container p-8 rounded-xl shadow-lg">
+                <% if (message) { %>
+                    <p class="text-green-400 text-center mb-4"><%= message %></p>
+                    <script>
+                        setTimeout(() => {
+                            window.location.href = "/dashboard";
+                        }, 2000);
+                    </script>
+                <% } %>
+                <% if (error) { %>
+                    <p class="text-red-400 text-center mb-4"><%= error %></p>
+                <% } %>
+                <form class="space-y-6" method="POST" action="/book/<%= djName %>" enctype="multipart/form-data">
+                    <div>
+                        <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                        <input 
+                            id="fullName" 
+                            name="fullName" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="Enter your full name" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                        <textarea 
+                            id="address" 
+                            name="address" 
+                            class="textarea-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            rows="3" 
+                            placeholder="Enter your full address" 
+                            required
+                        ></textarea>
+                    </div>
+                    <div>
+                        <label for="mobile" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
+                        <input 
+                            id="mobile" 
+                            name="mobile" 
+                            type="tel" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 9876543210" 
+                            pattern="[0-9]{10}" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-300 mb-1">Event Date</label>
+                        <input 
+                            id="date" 
+                            name="date" 
+                            type="date" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="time" class="block text-sm font-medium text-gray-300 mb-1">Event Time</label>
+                        <input 
+                            id="time" 
+                            name="time" 
+                            type="time" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            required
+                        >
+                        <small class="text-gray-400">Select time in 12-hour AM/PM format</small>
+                    </div>
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-300 mb-1">Event Location</label>
+                        <input 
+                            id="location" 
+                            name="location" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 123 Party Hall, Mumbai" 
+                            required
+                        >
+                    </div>
+                    <div>
+                        <label for="aadhaar" class="block text-sm font-medium text-gray-300 mb-1">Aadhaar Card Number</label>
+                        <input 
+                            id="aadhaar" 
+                            name="aadhaar" 
+                            type="text" 
+                            class="input-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            placeholder="e.g., 1234 5678 9012" 
+                            pattern="[0-9]{4}\s[0-9]{4}\s[0-9]{4}" 
+                            required
+                        >
+                        <small class="text-gray-400">Format: XXXX XXXX XXXX</small>
+                    </div>
+                    <div>
+                        <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">Upload Your Photo</label>
+                        <input 
+                            id="photo" 
+                            name="photo" 
+                            type="file" 
+                            accept="image/*" 
+                            class="file-input w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-500 file:text-white hover:file:bg-blue-700"
+                        >
+                    </div>
+                    <div>
+                        <label for="notes" class="block text-sm font-medium text-gray-300 mb-1">Additional Notes</label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            class="textarea-field w-full px-4 py-2 rounded-lg border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            rows="4" 
+                            placeholder="Any special requests?"
+                        ></textarea>
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="submit-btn w-full px-4 py-2 rounded-lg text-white font-medium"
+                    >
+                        Confirm Booking
+                    </button>
+                </form>
+                <p class="text-center mt-6 text-sm">
+                    <a href="/dashboard" class="text-blue-400 hover:underline">Back to Dashboard</a>
+                </p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

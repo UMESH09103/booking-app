@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Order Service - Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom CSS for background image */
+        body {
+            background-image: url('https://media.istockphoto.com/id/1400528967/photo/cropped-image-of-a-musician-playing-drum-set-on-the-stage.jpg?s=612x612&w=0&k=20&c=zfjaEdWQXn75QMZafL9E6yw0VV7RPf2DF7f8b0I7Azo=');
+            background-size: cover; /* Ensures the image covers the entire background */
+            background-position: center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents the image from repeating */
+            background-attachment: fixed; /* Keeps the background fixed while scrolling (optional) */
+        }
+        /* Optional: Add a dark overlay to improve text readability */
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+            min-height: 100vh; /* Full viewport height */
+        }
+    </style>
+</head>
+<body class="bg-black text-white flex flex-col items-center justify-center min-h-screen">
+    <!-- Hero Section with Overlay -->
+    <div class="overlay w-full flex flex-col items-center justify-center">
+        <header class="text-center p-10">
+            <h1 class="text-5xl font-bold">Welcome to DJ Order Service</h1>
+            <p class="text-lg mt-4">Book the best DJs for your events, parties, and weddings.</p>
+        </header>
+
+        <!-- Login & Register Options -->
+        <div class="mt-6 space-x-4">
+            <a href="/login" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full text-lg font-semibold">Login</a>
+            <a href="/register" class="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-full text-lg font-semibold">Register</a>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center p-6 absolute bottom-4">
+            <p>&copy; 2025 DJ Order Service | <a href="#" class="text-blue-400">Contact Us</a></p>
+        </footer>
+    </div>
+</body>
+</html>

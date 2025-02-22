@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://media.istockphoto.com/id/871200282/photo/drummer-plays-drums-on-stage.jpg?s=612x612&w=0&k=20&c=CmtQmmbONnI0dnDWlryGoE6zDVfpxKMQZN5ZcnCF_78=');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            /* Optional */
+        }
+
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Dark overlay for readability */
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-900 flex items-center justify-center min-h-screen text-white">
+    <div class="overlay w-full flex items-center justify-center">
+        <div class="w-full max-w-md bg-zinc-800 p-8 rounded-2xl shadow-lg backdrop-blur-md bg-opacity-50">
+            <h1 class="text-3xl font-bold text-center mb-6">Login to Your Account</h1>
+
+            <% if (typeof error !=="undefined" && error) { %>
+                <p class="text-red-400 text-center mb-4">
+                    <%= error %>
+                </p>
+                <% } %>
+
+                    <form class="space-y-5" method="POST" action="/login">
+                        <div>
+                            <label for="email" class="block text-sm font-medium mb-1">Email</label>
+                            <input id="email" name="email"
+                                class="w-full px-4 py-2 rounded-lg bg-zinc-700 border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition"
+                                type="email" placeholder="Enter your email" required>
+                        </div>
+
+                        <div>
+                            <label for="password" class="block text-sm font-medium mb-1">Password</label>
+                            <input id="password" name="password"
+                                class="w-full px-4 py-2 rounded-lg bg-zinc-700 border border-zinc-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition"
+                                type="password" placeholder="Enter your password" required>
+                        </div>
+
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" name="rememberMe" class="mr-2"> Remember Me
+                            </label>
+                        </div>
+
+                        <button
+                            class="w-full px-4 py-2 bg-blue-500 rounded-lg text-white font-medium hover:bg-blue-700 transition">Login</button>
+                    </form>
+
+                    <p class="text-center mt-4 text-sm">
+                        Don't have an account?
+                        <a href="/register" class="text-blue-400 hover:underline">Register here</a>
+                    </p>
+        </div>
+    </div>
+</body>
+
+</html>
