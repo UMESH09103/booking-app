@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - DJ Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .payment-container {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+        .payment-container:hover {
+            transform: translateY(-5px);
+        }
+        .input-field {
+            background: rgba(45, 55, 72, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: white;
+            width: 100%;
+            transition: border-color 0.3s ease;
+        }
+        .input-field:focus {
+            border-color: #38bdf8;
+            outline: none;
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .pay-btn {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            transition: all 0.3s ease;
+        }
+        .pay-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .payment-option {
+            display: none;
+        }
+        .payment-option.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <header class="header-gradient p-4 sticky top-0 z-10">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="attractive-heading">🎧 Payment for <%= djName %></h1>
+                <div class="flex items-center space-x-4">
+                    <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
+                </div>
+            </div>
+        </header>
+
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg payment-container p-8">
+                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Complete Your Payment</h2>
+                <p class="text-center text-gray-400 mb-6">Amount: ₹<%= amount %></p>
+                <form class="space-y-6" method="POST" action="/payment/<%= bookingId %>">
+                    <div class="space-y-4">
+                        <label class="block text-sm font-medium text-gray-300">Select Payment Method:</label>
+                        <div class="flex space-x-4">
+                            <label class="flex items-center">
+                                <input type="radio" name="paymentMethod" value="card" class="mr-2" checked onchange="togglePaymentFields()">
+                                Card Payment
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="paymentMethod" value="upi" class="mr-2" onchange="togglePaymentFields()">
+                                UPI Payment
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="paymentMethod" value="netbanking" class="mr-2" onchange="togglePaymentFields()">
+                                Net Banking
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Card Payment Fields -->
+                    <div id="cardFields" class="payment-option active">
+                        <div>
+                            <label for="cardNumber" class="block text-sm font-medium text-gray-300 mb-1">Card Number</label>
+                            <input 
+                                id="cardNumber" 
+                                name="cardNumber" 
+                                type="text" 
+                                class="input-field" 
+                                placeholder="e.g., 1234 5678 9012 3456" 
+                                pattern="[0-9]{4}\s[0-9]{4}\s[0-9]{4}\s[0-9]{4}" 
+                            >
+                        </div>
+                        <div class="flex space-x-4 mt-4">
+                            <div class="flex-1">
+                                <label for="expiry" class="block text-sm font-medium text-gray-300 mb-1">Expiry Date</label>
+                                <input 
+                                    id="expiry" 
+                                    name="expiry" 
+                                    type="text" 
+                                    class="input-field" 
+                                    placeholder="MM/YY" 
+                                    pattern="(0[1-9]|1[0-2])\/\d{2}" 
+                                >
+                            </div>
+                            <div class="flex-1">
+                                <label for="cvv" class="block text-sm font-medium text-gray-300 mb-1">CVV</label>
+                                <input 
+                                    id="cvv" 
+                                    name="cvv" 
+                                    type="text" 
+                                    class="input-field" 
+                                    placeholder="e.g., 123" 
+                                    pattern="[0-9]{3,4}" 
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- UPI Payment Field -->
+                    <div id="upiFields" class="payment-option">
+                        <label for="upiId" class="block text-sm font-medium text-gray-300 mb-1">UPI ID</label>
+                        <input 
+                            id="upiId" 
+                            name="upiId" 
+                            type="text" 
+                            class="input-field" 
+                            placeholder="e.g., yourname@upi"
+                        >
+                    </div>
+
+                    <!-- Net Banking Field -->
+                    <div id="netbankingFields" class="payment-option">
+                        <label for="bank" class="block text-sm font-medium text-gray-300 mb-1">Select Bank</label>
+                        <select id="bank" name="bank" class="input-field">
+                            <option value="">Choose a bank</option>
+                            <option value="sbi">State Bank of India</option>
+                            <option value="hdfc">HDFC Bank</option>
+                            <option value="icici">ICICI Bank</option>
+                            <option value="axis">Axis Bank</option>
+                        </select>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="pay-btn w-full px-4 py-3 text-white font-semibold"
+                    >
+                        Pay Now
+                    </button>
+                </form>
+                <p class="text-center mt-6 text-sm">
+                    <a href="/dashboard" class="text-blue-400 hover:underline">Cancel and Return to Dashboard</a>
+                </p>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 p-6 text-center">
+            <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
+        </footer>
+
+        <script>
+            function togglePaymentFields() {
+                const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+                document.querySelectorAll('.payment-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.getElementById(`${method}Fields`).classList.add('active');
+
+                // Toggle required attributes
+                document.querySelectorAll('.payment-option input').forEach(input => {
+                    input.removeAttribute('required');
+                });
+                document.querySelectorAll(`#${method}Fields input`).forEach(input => {
+                    input.setAttribute('required', 'required');
+                });
+            }
+        </script>
+    </div>
+</body>
+</html>

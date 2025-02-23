@@ -152,7 +152,7 @@ router.post("/add-dj", authenticateToken, async (req, res) => {
       address,
       restrictions,
       photo,
-      ownerPhoto, // Save owner photo
+      ownerPhoto,
       addedBy: req.user.id,
     });
 
@@ -203,11 +203,74 @@ router.post("/book/:djName", authenticateToken, async (req, res) => {
       notes: notes || "",
     });
 
-    await booking.save();
-    res.render("book", { djName, error: null, message: "Booking successful! Redirecting to dashboard..." });
+    const savedBooking = await booking.save();
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.render("book", { djName, error: "DJ not found", message: null });
+    }
+    res.redirect(`/payment/${savedBooking._id}?djName=${encodeURIComponent(djName)}&amount=${dj.price}`);
   } catch (err) {
     console.error("❌ Booking Error:", err.message);
     res.render("book", { djName, error: "Failed to book DJ. Try again.", message: null });
+  }
+});
+
+// Payment Page (GET)
+router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
+  const { bookingId } = req.params;
+  const { djName, amount } = req.query;
+  try {
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.render("dashboard", { user: req.user, djs: [], error: "Booking not found" });
+    }
+    res.render("payment", { bookingId, djName: decodeURIComponent(djName), amount });
+  } catch (err) {
+    console.error("❌ Payment Page Error:", err.message);
+    res.render("dashboard", { user: req.user, djs: [], error: "Failed to load payment page" });
+  }
+});
+
+// Handle Payment Submission (POST)
+router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
+  const { bookingId } = req.params;
+  const { paymentMethod, cardNumber, expiry, cvv, upiId, bank } = req.body;
+  try {
+    const booking = await Booking.findById(bookingId);
+    if (!booking) {
+      return res.render("dashboard", { user: req.user, djs: [], error: "Booking not found" });
+    }
+    const dj = await DJ.findOne({ name: booking.djName });
+    if (!dj) {
+      return res.render("dashboard", { user: req.user, djs: [], error: "DJ not found" });
+    }
+
+    // Mock payment processing based on method
+    console.log(`Processing ${paymentMethod} payment for booking ${bookingId}, Amount: ₹${dj.price}`);
+    if (paymentMethod === "card") {
+      if (!cardNumber || !expiry || !cvv) {
+        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "All card fields are required!" });
+      }
+      console.log(`Card: ${cardNumber}, Expiry: ${expiry}, CVV: ${cvv}`);
+    } else if (paymentMethod === "upi") {
+      if (!upiId) {
+        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "UPI ID is required!" });
+      }
+      console.log(`UPI ID: ${upiId}`);
+    } else if (paymentMethod === "netbanking") {
+      if (!bank) {
+        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "Bank selection is required!" });
+      }
+      console.log(`Bank: ${bank}`);
+    } else {
+      return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "Invalid payment method!" });
+    }
+
+    // Simulate payment success
+    res.redirect("/dashboard");
+  } catch (err) {
+    console.error("❌ Payment Error:", err.message);
+    res.render("payment", { bookingId, djName: booking.djName, amount: booking.amount, error: "Payment failed. Try again." });
   }
 });
 

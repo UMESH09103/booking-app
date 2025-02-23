@@ -1,59 +1,39 @@
 # Node.js dependencies
 node_modules/
-npm-debug.log*
+npm-debug.log
 yarn-error.log
-pnpm-debug.log
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
 
-# Environment files
+# Environment variables
 .env
-.env.local
-.env.development
-.env.test
-.env.production
+
+# Uploaded files (public/images/)
+public/images/*
+!public/images/dev.jpg  # Keep dev.jpg if you want it in the repo
 
 # Logs
 logs/
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-/log
-*.log
-logs/*.log
+*.log.*
 
-# System files
+# Build artifacts
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+
+# OS-specific files
 .DS_Store
 Thumbs.db
 
-# Coverage files
-coverage/
-.nyc_output/
-
-# Build files
-dist/
-build/
-.cache/
-.tmp/
-
-# IDE and editor files
+# IDE-specific files
 .vscode/
 .idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.swp
+*.sublime-project
+*.sublime-workspace
 
-# PM2 process manager files
-pids/
-*.pid
-*.seed
-*.log
-
-# Misc
-!.gitkeep
+# MongoDB local data (if applicable)
+data/
+mongod.log
