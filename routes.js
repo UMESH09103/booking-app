@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
+const { initiatePhonePePayment } = require("./phonepe.js"); // Import PhonePe logic
 
 const router = express.Router();
 
@@ -11,7 +12,6 @@ const router = express.Router();
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
   if (!token) return res.redirect("/login");
-
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.redirect("/login");
     req.user = user;
@@ -21,7 +21,16 @@ function authenticateToken(req, res, next) {
 
 // Landing Page
 router.get("/", (req, res) => {
-  res.render("landing");
+  const token = req.cookies.token;
+  let user = null;
+  if (token) {
+    try {
+      user = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      // Invalid token, ignore
+    }
+  }
+  res.render("landing", { user });
 });
 
 // Register Page
@@ -37,18 +46,14 @@ router.post("/register", async (req, res) => {
     if (existingUser) {
       return res.render("register", { error: "Username or Email already exists!", message: null });
     }
-
     if (password.length < 6) {
       return res.render("register", { error: "Password must be at least 6 characters!", message: null });
     }
-
     if (age < 13) {
       return res.render("register", { error: "You must be at least 13 years old!", message: null });
     }
-
     const hash = await bcrypt.hash(password, 10);
     await User.create({ username, email, password: hash, age });
-
     res.render("register", { error: null, message: "Account created successfully! Redirecting to login..." });
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
@@ -69,22 +74,18 @@ router.post("/login", async (req, res) => {
     if (!user) {
       return res.render("login", { error: "Invalid email or password", message: null });
     }
-
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.render("login", { error: "Invalid email or password", message: null });
     }
-
     const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
       expiresIn: rememberMe ? "7d" : "1h",
     });
-
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       maxAge: rememberMe ? 7 * 24 * 60 * 60 * 1000 : 60 * 60 * 1000,
     });
-
     res.redirect("/dashboard");
   } catch (err) {
     console.error("❌ Login Error:", err.message);
@@ -135,7 +136,6 @@ router.post("/add-dj", authenticateToken, async (req, res) => {
     if (!name || !genre || !experience || !price || !sinceYear || !ownerName || !mobile || !address) {
       return res.render("add-dj", { error: "All fields except photo, owner photo, next available dates, and restrictions are required!", message: null });
     }
-
     if (!/^\d{10}$/.test(mobile)) {
       return res.render("add-dj", { error: "Mobile number must be 10 digits!", message: null });
     }
@@ -180,11 +180,9 @@ router.post("/book/:djName", authenticateToken, async (req, res) => {
     if (!fullName || !address || !mobile || !date || !time || !location || !aadhaar) {
       return res.render("book", { djName, error: "All fields except notes and photo are required!", message: null });
     }
-
     if (!/^\d{10}$/.test(mobile)) {
       return res.render("book", { djName, error: "Mobile number must be 10 digits!", message: null });
     }
-
     if (!/^\d{4}\s\d{4}\s\d{4}$/.test(aadhaar)) {
       return res.render("book", { djName, error: "Aadhaar must be in XXXX XXXX XXXX format!", message: null });
     }
@@ -208,69 +206,31 @@ router.post("/book/:djName", authenticateToken, async (req, res) => {
     if (!dj) {
       return res.render("book", { djName, error: "DJ not found", message: null });
     }
-    res.redirect(`/payment/${savedBooking._id}?djName=${encodeURIComponent(djName)}&amount=${dj.price}`);
+
+    // Initiate PhonePe payment
+    const paymentUrl = await initiatePhonePePayment(savedBooking._id, dj.price, req.user.id, mobile);
+    console.log("Redirecting to PhonePe URL:", paymentUrl); // Debug log
+    res.redirect(paymentUrl);
   } catch (err) {
-    console.error("❌ Booking Error:", err.message);
-    res.render("book", { djName, error: "Failed to book DJ. Try again.", message: null });
+    console.error("❌ Booking or Payment Error:", err.message);
+    res.render("book", { djName, error: "Failed to initiate payment. Try again.", message: null });
   }
 });
 
-// Payment Page (GET)
-router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
+// Payment Callback Route
+router.get("/payment-callback/:bookingId", async (req, res) => {
   const { bookingId } = req.params;
-  const { djName, amount } = req.query;
   try {
     const booking = await Booking.findById(bookingId);
     if (!booking) {
-      return res.render("dashboard", { user: req.user, djs: [], error: "Booking not found" });
+      return res.redirect("/dashboard?error=Booking not found");
     }
-    res.render("payment", { bookingId, djName: decodeURIComponent(djName), amount });
+    // TODO: Verify payment status with PhonePe /pg/v1/status API in production
+    console.log("Payment callback for booking:", bookingId); // Debug log
+    res.redirect("/dashboard?message=Payment successful");
   } catch (err) {
-    console.error("❌ Payment Page Error:", err.message);
-    res.render("dashboard", { user: req.user, djs: [], error: "Failed to load payment page" });
-  }
-});
-
-// Handle Payment Submission (POST)
-router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
-  const { bookingId } = req.params;
-  const { paymentMethod, cardNumber, expiry, cvv, upiId, bank } = req.body;
-  try {
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.render("dashboard", { user: req.user, djs: [], error: "Booking not found" });
-    }
-    const dj = await DJ.findOne({ name: booking.djName });
-    if (!dj) {
-      return res.render("dashboard", { user: req.user, djs: [], error: "DJ not found" });
-    }
-
-    // Mock payment processing based on method
-    console.log(`Processing ${paymentMethod} payment for booking ${bookingId}, Amount: ₹${dj.price}`);
-    if (paymentMethod === "card") {
-      if (!cardNumber || !expiry || !cvv) {
-        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "All card fields are required!" });
-      }
-      console.log(`Card: ${cardNumber}, Expiry: ${expiry}, CVV: ${cvv}`);
-    } else if (paymentMethod === "upi") {
-      if (!upiId) {
-        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "UPI ID is required!" });
-      }
-      console.log(`UPI ID: ${upiId}`);
-    } else if (paymentMethod === "netbanking") {
-      if (!bank) {
-        return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "Bank selection is required!" });
-      }
-      console.log(`Bank: ${bank}`);
-    } else {
-      return res.render("payment", { bookingId, djName: booking.djName, amount: dj.price, error: "Invalid payment method!" });
-    }
-
-    // Simulate payment success
-    res.redirect("/dashboard");
-  } catch (err) {
-    console.error("❌ Payment Error:", err.message);
-    res.render("payment", { bookingId, djName: booking.djName, amount: booking.amount, error: "Payment failed. Try again." });
+    console.error("❌ Payment Callback Error:", err.message);
+    res.redirect("/dashboard?error=Payment failed");
   }
 });
 
