@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - DJ Booking</title>
+    <title>Booking History - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -22,15 +22,14 @@
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
-        .profile-card {
+        .history-card {
             background: linear-gradient(135deg, #2d3748, #1a202c);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .profile-card:hover {
+        .history-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
         .attractive-heading {
             background: linear-gradient(to right, #38bdf8, #ffffff);
@@ -51,7 +50,7 @@
     <div class="overlay flex flex-col min-h-screen">
         <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
             <div class="container mx-auto flex justify-between items-center">
-                <h1 class="attractive-heading">🎧 Profile</h1>
+                <h1 class="attractive-heading">🎧 Booking History</h1>
                 <div class="flex items-center space-x-4">
                     <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
                     <form action="/logout" method="POST">
@@ -61,20 +60,23 @@
             </div>
         </header>
 
-        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
-            <div class="w-full max-w-lg profile-card p-8">
-                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Your Profile</h2>
-                <% if (user) { %>
-                    <div class="space-y-4">
-                        <p class="text-gray-400">Username: <span class="text-teal-300"><%= user.username %></span></p>
-                        <p class="text-gray-400">Email: <span class="text-teal-300"><%= user.email %></span></p>
-                        <p class="text-gray-400">Age: <span class="text-teal-300"><%= user.age %></span></p>
-                        <p class="text-gray-400">Role: <span class="text-purple-300"><%= user.role %></span></p>
-                    </div>
-                <% } else { %>
-                    <p class="text-red-500 text-center">User not found. Please log in again.</p>
-                <% } %>
-            </div>
+        <main class="container mx-auto p-6 flex-grow">
+            <h2 class="text-2xl font-bold text-center mb-8 text-blue-300">Your Past Bookings</h2>
+            <% if (bookings && bookings.length > 0) { %>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <% bookings.forEach(booking => { %>
+                        <div class="history-card p-6 rounded-xl shadow-lg">
+                            <h3 class="text-xl font-semibold mb-2 text-blue-300"><%= booking.djName %></h3>
+                            <p class="text-gray-400 mb-1">👤 Name: <span class="text-teal-300"><%= booking.fullName %></span></p>
+                            <p class="text-gray-400 mb-1">📅 Date: <span class="text-purple-300"><%= booking.date.toDateString() %></span></p>
+                            <p class="text-gray-400 mb-1">⏰ Time: <span class="text-orange-300"><%= booking.time %></span></p>
+                            <p class="text-gray-400 mb-1">📍 Location: <span class="text-pink-300"><%= booking.location %></span></p>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } else { %>
+                <p class="text-center text-gray-400">No bookings found.</p>
+            <% } %>
         </main>
 
         <footer class="bg-gray-800 p-6 text-center">

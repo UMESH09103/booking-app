@@ -3,41 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DJ Order Service - Home</title>
+    <title data-i18n="title">DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/language.js" defer></script>
     <style>
-        /* Custom CSS for background image */
         body {
-            background-image: url('https://media.istockphoto.com/id/1400528967/photo/cropped-image-of-a-musician-playing-drum-set-on-the-stage.jpg?s=612x612&w=0&k=20&c=zfjaEdWQXn75QMZafL9E6yw0VV7RPf2DF7f8b0I7Azo=');
-            background-size: cover; /* Ensures the image covers the entire background */
-            background-position: center; /* Centers the image */
-            background-repeat: no-repeat; /* Prevents the image from repeating */
-            background-attachment: fixed; /* Keeps the background fixed while scrolling (optional) */
+            background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
-        /* Optional: Add a dark overlay to improve text readability */
         .overlay {
-            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-            min-height: 100vh; /* Full viewport height */
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #0d9488, #6b7280);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        .welcome-card {
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease;
+        }
+        .welcome-card:hover {
+            transform: translateY(-5px);
+        }
+        .language-toggle, .theme-toggle {
+            background: rgba(45, 55, 72, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            color: white;
+            transition: border-color 0.3s ease;
+        }
+        .language-toggle:focus, .theme-toggle:focus {
+            border-color: #38bdf8;
+            outline: none;
+            background: rgba(66, 153, 225, 0.1);
+        }
+        .light-mode {
+            background-color: #ffffff;
+            color: #000000;
+        }
+        .light-mode .overlay {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .light-mode .header-gradient {
+            background: linear-gradient(to right, #4a90e2, #d3d3d3);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+        }
+        .light-mode .welcome-card, .light-mode .language-toggle, .light-mode .theme-toggle {
+            background: #f5f5f5;
+            border-color: rgba(0, 0, 0, 0.1);
+            color: #000000;
+        }
+        .light-mode .welcome-card:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        .light-mode .text-gray-400, .light-mode .text-teal-300, .light-mode .text-purple-300, .light-mode .text-orange-300, .light-mode .text-pink-300, .light-mode .text-red-300, .light-mode .text-green-300, .light-mode .text-blue-300 {
+            color: #000000 !important; /* Override Tailwind colors for light mode */
+        }
+        .attractive-heading {
+            background: linear-gradient(to right, #38bdf8, #ffffff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            font-weight: bold;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
-<body class="bg-black text-white flex flex-col items-center justify-center min-h-screen">
-    <!-- Hero Section with Overlay -->
-    <div class="overlay w-full flex flex-col items-center justify-center">
-        <header class="text-center p-10">
-            <h1 class="text-5xl font-bold">Welcome to DJ Order Service</h1>
-            <p class="text-lg mt-4">Book the best DJs for your events, parties, and weddings.</p>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
+            <div class="container mx-auto flex justify-between items-center">
+                <h1 class="attractive-heading" data-i18n="title">DJ Booking</h1>
+                <div class="flex items-center space-x-4">
+                    <% if (user) { %>
+                        <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium" data-i18n="dashboard">Dashboard</a>
+                        <form action="/logout" method="POST">
+                            <button class="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-700 transition font-medium" data-i18n="logout">Logout</button>
+                        </form>
+                    <% } else { %>
+                        <a href="/login" class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition font-medium" data-i18n="login">Login</a>
+                        <a href="/register" class="px-4 py-2 bg-green-500 rounded-lg hover:bg-green-600 transition font-medium" data-i18n="register">Register</a>
+                    <% } %>
+                    <div class="flex space-x-2">
+                        <select id="languageSelect" class="language-toggle">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी</option>
+                            <option value="mr">मराठी</option>
+                        </select>
+                        <label class="theme-toggle flex items-center">
+                            <input type="checkbox" id="themeToggle" class="hidden">
+                            <span class="px-4 py-2 rounded-lg text-white font-medium">🌙☀️</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <!-- Login & Register Options -->
-        <div class="mt-6 space-x-4">
-            <a href="/login" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 rounded-full text-lg font-semibold">Login</a>
-            <a href="/register" class="px-6 py-3 bg-green-500 hover:bg-green-600 rounded-full text-lg font-semibold">Register</a>
-        </div>
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="w-full max-w-lg welcome-card p-8 text-center">
+                <h2 class="text-3xl font-bold mb-4 text-blue-300" data-i18n="welcome">Welcome to DJ Booking</h2>
+                <p class="text-gray-400 mb-6" data-i18n="findDjs">Find and book the best DJs for your events effortlessly!</p>
+                <% if (user) { %>
+                    <p class="text-teal-300 mb-4" data-i18n="hello" data-email="<%= user.email %>">Hello, <%= user.email %>! Ready to book a DJ or manage your listings?</p>
+                    <a href="/dashboard" class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition font-medium" data-i18n="dashboard">Go to Dashboard</a>
+                <% } else { %>
+                    <div class="space-y-4">
+                        <a href="/login" class="px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition font-medium" data-i18n="login">Login to Book</a>
+                        <a href="/register" class="px-4 py-2 bg-green-500 rounded-lg hover:bg-green-600 transition font-medium" data-i18n="register">Register Now</a>
+                    </div>
+                <% } %>
+            </div>
+        </main>
 
-        <!-- Footer -->
-        <footer class="text-center p-6 absolute bottom-4">
-            <p>&copy; 2025 DJ Order Service | <a href="#" class="text-blue-400">Contact Us</a></p>
+        <footer class="bg-gray-800 p-6 text-center">
+            <p class="text-sm" data-i18n="footer">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline" data-i18n="contactUs">Contact Us</a></p>
         </footer>
     </div>
 </body>

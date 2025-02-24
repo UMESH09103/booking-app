@@ -10,9 +10,8 @@ const bookingSchema = new mongoose.Schema({
   time: { type: String, required: true },
   location: { type: String, required: true },
   aadhaar: { type: String, required: true },
-  photo: { type: String },
-  notes: { type: String, default: "" },
-  createdAt: { type: Date, default: Date.now },
+  photo: { type: String }, // URL to uploaded photo
+  notes: { type: String }
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
