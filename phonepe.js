@@ -11,7 +11,7 @@ async function initiatePhonePePayment(bookingId, amount, userId, mobile) {
     throw new Error("PhonePe credentials (MERCHANT_ID or SALT_KEY) are missing in environment variables");
   }
 
-  const transactionId = `TX${bookingId}-${Date.now()}`; // Unique transaction ID
+  const transactionId = `TX${bookingId.toString().slice(0, 12)}${Date.now().toString().slice(-8)}`; // Fixed line
   const baseUrl = process.env.NODE_ENV === "production" ? "https://dj-booking.onrender.com" : "http://localhost:3000";
   const payload = {
     merchantId: merchantId,

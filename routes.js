@@ -39,16 +39,12 @@ router.get("/", (req, res) => {
     } catch (err) {
       // Invalid token, ignore
     }
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
   }
   res.render("landing", { user });
 });
 
 // Register Page
 router.get("/register", (req, res) => {
-  const lang = req.query.lang || req.cookies.lang || "en";
-  res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
   res.render("register", { error: null, message: null });
 });
 
@@ -77,8 +73,6 @@ router.post("/register", async (req, res) => {
 
 // Login Page
 router.get("/login", (req, res) => {
-  const lang = req.query.lang || req.cookies.lang || "en";
-  res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
   res.render("login", { message: null, error: null });
 });
 
@@ -113,8 +107,6 @@ router.post("/login", async (req, res) => {
 router.get("/dashboard", authenticateToken, async (req, res) => {
   try {
     const djs = await DJ.find();
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
     res.render("dashboard", { user: req.user, djs, error: null });
   } catch (err) {
     console.error("❌ Dashboard Error:", err.message);
@@ -126,8 +118,6 @@ router.get("/dashboard", authenticateToken, async (req, res) => {
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
     res.render("profile", { user });
   } catch (err) {
     console.error("❌ Profile Error:", err.message);
@@ -146,8 +136,6 @@ router.get("/add-dj", authenticateToken, (req, res) => {
   if (req.user.role !== "admin") {
     return res.redirect("/dashboard?error=Unauthorized access");
   }
-  const lang = req.query.lang || req.cookies.lang || "en";
-  res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
   res.render("add-dj", { error: null, message: null });
 });
 
@@ -195,8 +183,6 @@ router.post("/add-dj", authenticateToken, async (req, res) => {
 // Booking Page (GET)
 router.get("/book/:djName", authenticateToken, (req, res) => {
   const djName = req.params.djName;
-  const lang = req.query.lang || req.cookies.lang || "en";
-  res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
   res.render("book", { djName, error: null, message: null });
 });
 
@@ -259,8 +245,6 @@ router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
     if (!dj) {
       return res.render("payment", { djName: booking.djName, amount: 0, bookingId, error: "DJ not found" });
     }
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
     res.render("payment", { djName: booking.djName, amount: dj.price, bookingId, error: null });
   } catch (err) {
     console.error("❌ Payment Page Error:", err.message);
@@ -318,8 +302,6 @@ router.get("/payment-callback/:bookingId", async (req, res) => {
     // TODO: Verify payment status with PhonePe /pg/v1/status API in production
     console.log("Payment callback for booking:", bookingId); // Debug log
     const dj = await DJ.findOne({ name: booking.djName });
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
     res.render("payment", { success: true, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
   } catch (err) {
     console.error("❌ Payment Callback Error:", err.message);
@@ -339,8 +321,6 @@ router.get("/dj-details/:djName", authenticateToken, async (req, res) => {
     if (!owner) {
       return res.render("dashboard", { user: req.user, djs: [], error: "Owner not found" });
     }
-    const lang = req.query.lang || req.cookies.lang || "en";
-    res.cookie("lang", lang, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 }); // 30 days
     res.render("dj-details", { dj, owner });
   } catch (err) {
     console.error("❌ DJ Details Error:", err.message);

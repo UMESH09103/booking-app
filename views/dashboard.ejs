@@ -3,170 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title">DJ Booking</title>
+    <title>Dashboard - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/js/language.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <style>
+        html {
+            scroll-behavior: smooth; /* Enables smooth scrolling */
+            height: 100%;
+        }
         body {
             background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .overlay {
             background-color: rgba(0, 0, 0, 0.6);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
         }
         .header-gradient {
             background: linear-gradient(to right, #0d9488, #6b7280);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 20;
         }
-        .dj-card {
-            background: linear-gradient(135deg, #2d3748, #1a202c);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .dashboard-section {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Enable vertical scrolling */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
         }
-        .dj-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
-        }
-        .search-bar {
-            background: rgba(45, 55, 72, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            padding: 0.75rem;
-            color: white;
+        .dashboard-content {
+            z-index: 10;
             width: 100%;
-            transition: border-color 0.3s ease;
+            padding: 4rem 1rem;
+            flex-grow: 1;
         }
-        .search-bar:focus {
-            border-color: #38bdf8;
-            outline: none;
-            background: rgba(66, 153, 225, 0.1);
-        }
-        .dj-photo {
+        #particles-js {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 200px; /* Fixed height for consistency */
-            object-fit: cover;
-            border-radius: 0.5rem; /* Slight rounding */
-            margin-bottom: 1rem;
-        }
-        .language-toggle, .theme-toggle {
-            background: rgba(45, 55, 72, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            color: white;
-            transition: border-color 0.3s ease;
-        }
-        .language-toggle:focus, .theme-toggle:focus {
-            border-color: #38bdf8;
-            outline: none;
-            background: rgba(66, 153, 225, 0.1);
-        }
-        .light-mode {
-            background-color: #ffffff;
-            color: #000000;
-        }
-        .light-mode .overlay {
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        .light-mode .header-gradient {
-            background: linear-gradient(to right, #4a90e2, #d3d3d3);
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-        }
-        .light-mode .dj-card, .light-mode .search-bar, .light-mode .language-toggle, .light-mode .theme-toggle {
-            background: #f5f5f5;
-            border-color: rgba(0, 0, 0, 0.1);
-            color: #000000;
-        }
-        .light-mode .dj-card:hover {
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-        .light-mode .text-gray-400, .light-mode .text-teal-300, .light-mode .text-purple-300, .light-mode .text-orange-300, .light-mode .text-pink-300, .light-mode .text-red-300, .light-mode .text-green-300, .light-mode .text-blue-300 {
-            color: #000000 !important; /* Override Tailwind colors for light mode */
+            height: 100%;
+            z-index: 1;
+            pointer-events: none; /* Prevents particles from interfering with scrolling */
         }
         .attractive-heading {
             background: linear-gradient(to right, #38bdf8, #ffffff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            font-size: 2.5rem;
+            font-size: 3.5rem;
             font-weight: bold;
-            animation: fadeIn 1s ease-in-out;
+            text-shadow: 0 6px 15px rgba(56, 189, 248, 0.5);
+            animation: fadeInBounce 2s ease-in-out;
         }
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-10px); }
-            100% { opacity: 1; transform: translateY(0); }
+        @keyframes fadeInBounce {
+            0% { opacity: 0; transform: scale(0.8) translateY(50px); }
+            50% { transform: scale(1.1) translateY(-10px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .search-bar {
+            background: rgba(45, 55, 72, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            color: white;
+            width: 100%;
+            max-width: 500px;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+        .search-bar:focus {
+            border-color: #38bdf8;
+            outline: none;
+            background: rgba(66, 153, 225, 0.1);
+            transform: scale(1.02);
+        }
+        .dj-card {
+            background: linear-gradient(135deg, #374151, #1f2937);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 1.5rem;
+        }
+        .dj-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        }
+        .dj-photo {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 1rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+        .dj-photo:hover {
+            transform: scale(1.05);
+        }
+        .pulse-btn {
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+            border-radius: 0.75rem;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+            transition: all 0.3s ease;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        .pulse-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.8);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+            50% { box-shadow: 0 10px 30px rgba(59, 130, 246, 0.9); }
+            100% { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+        }
+        footer {
+            background: rgba(31, 41, 55, 0.9);
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
     </style>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#38bdf8" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": { "enable": true, "distance": 150, "color": "#38bdf8", "opacity": 0.4, "width": 1 },
+                "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false, "out_mode": "out" }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } },
+                "modes": { "repulse": { "distance": 100, "duration": 0.4 } }
+            },
+            "retina_detect": true
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("searchInput");
+            const djCards = document.querySelectorAll(".dj-card");
+
+            if (searchInput && djCards) {
+                searchInput.addEventListener("input", function() {
+                    const searchTerm = searchInput.value.toLowerCase().trim();
+
+                    djCards.forEach(card => {
+                        const djName = card.querySelector("h3")?.textContent.toLowerCase() || "";
+                        if (djName.includes(searchTerm)) {
+                            card.style.display = "block";
+                        } else {
+                            card.style.display = "none";
+                        }
+                    });
+                });
+            }
+        });
+    </script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <div class="overlay flex flex-col min-h-screen">
-        <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
+<body class="bg-gray-900 text-white">
+    <div class="overlay">
+        <header class="header-gradient p-4">
             <div class="container mx-auto flex justify-between items-center">
-                <h1 class="attractive-heading" data-i18n="dashboard">DJ Booking Dashboard</h1>
+                <h1 class="attractive-heading">🎧 DJ Booking Dashboard</h1>
                 <div class="flex items-center space-x-4">
                     <% if (user && user.role === "admin") { %>
-                        <a href="/add-dj" class="px-4 py-2 bg-green-500 rounded-lg hover:bg-green-600 transition font-medium" data-i18n="addDj">Add DJ</a>
+                        <a href="/add-dj" class="pulse-btn">Add DJ</a>
                     <% } %>
-                    <a href="/profile" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium" data-i18n="profile">Profile</a>
-                    <a href="/history" class="px-4 py-2 bg-teal-500 rounded-lg hover:bg-teal-600 transition font-medium" data-i18n="history">History</a>
-                    <div class="flex space-x-2">
-                        <select id="languageSelect" class="language-toggle">
-                            <option value="en">English</option>
-                            <option value="hi">हिन्दी</option>
-                            <option value="mr">मराठी</option>
-                        </select>
-                        <label class="theme-toggle flex items-center">
-                            <input type="checkbox" id="themeToggle" class="hidden">
-                            <span class="px-4 py-2 rounded-lg text-white font-medium">🌙☀️</span>
-                        </label>
-                    </div>
+                    <a href="/profile" class="pulse-btn">Profile</a>
+                    <a href="/history" class="pulse-btn">History</a>
                     <form action="/logout" method="POST">
-                        <button class="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-700 transition font-medium" data-i18n="logout">Logout</button>
+                        <button class="pulse-btn bg-red-500 hover:bg-red-700">Logout</button>
                     </form>
                 </div>
             </div>
         </header>
 
-        <main class="container mx-auto p-6 flex-grow">
-            <% if (error) { %>
-                <p class="text-red-500 text-center mb-4" data-i18n="error"><%= error %></p>
-            <% } %>
-            <div class="mb-8">
-                <input type="text" id="searchInput" class="search-bar" placeholder data-i18n="searchDjs">Search DJs by name...</input>
-            </div>
-            <h2 class="text-2xl font-bold text-center mb-8 text-blue-300" data-i18n="availableDjs">Available DJs</h2>
-            <% if (djs && djs.length > 0) { %>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <% djs.forEach(dj => { %>
-                        <div class="dj-card p-6 rounded-xl shadow-lg" style="display: block;">
-                            <% if (dj.photo) { %>
-                                <img src="<%= dj.photo %>" alt="<%= dj.name %> Photo" class="dj-photo">
-                            <% } else { %>
-                                <div class="dj-photo bg-gray-600 flex items-center justify-center text-gray-400" data-i18n="noPhoto">No Photo</div>
-                            <% } %>
-                            <h3 class="text-xl font-semibold mb-2 text-blue-300"><%= dj.name %></h3>
-                            <p class="text-gray-400 mb-1">Genre: <span class="text-teal-300" data-i18n="genre"><%= dj.genre %></span></p>
-                            <p class="text-gray-400 mb-1">Price: ₹<span class="text-purple-300" data-i18n="price"><%= dj.price %></span></p>
-                            <a href="/book/<%= dj.name %>" class="mt-4 inline-block px-4 py-2 bg-blue-500 rounded-lg hover:bg-blue-600 transition font-medium" data-i18n="bookNow">Book Now</a>
-                            <a href="/dj-details/<%= dj.name %>" class="mt-2 inline-block px-4 py-2 bg-gray-500 rounded-lg hover:bg-gray-600 transition font-medium" data-i18n="viewDetails">View Details</a>
-                        </div>
-                    <% }) %>
+        <main class="dashboard-section">
+            <div id="particles-js"></div>
+            <div class="container mx-auto dashboard-content">
+                <% if (error) { %>
+                    <p class="text-red-500 text-center mb-6 text-xl"><%= error %></p>
+                <% } %>
+                
+                <div class="mb-8 flex justify-center">
+                    <input type="text" id="searchInput" class="search-bar" placeholder="Search DJs by name...">
                 </div>
-            <% } else { %>
-                <p class="text-center text-gray-400" data-i18n="noDjs">No DJs available.</p>
-            <% } %>
-        </main>
 
-        <footer class="bg-gray-800 p-6 text-center">
-            <p class="text-sm" data-i18n="footer">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline" data-i18n="contactUs">Contact Us</a></p>
-        </footer>
-    </div>
-</body>
+                <h2 class="text-3xl font-bold text-blue-300 text-center mb-12">Available DJs</h2>
+                <% if (djs && djs.length > 0) { %>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <% djs.forEach(dj => { %>
+                            <div class="dj-card" style="display: block;">
+                                <% if (dj.photo) { %>
+                                    <img src="<%= dj.photo %>" alt="<%= dj.name %> Photo" class="dj-photo mb-4">
+                                <% } else { %>
+                                    <div class="dj-photo bg-gray-600 flex items-center justify-center text-gray-400 mb-4">No Photo</div>
+                                <% } %>
+                                <h3 class="text-xl font-semibold text-blue-300 mb-2"><%= dj.name %></h3>
+                                <p class="text-gray-400 mb-2">Genre: <span class="text-teal-300"><%= dj.genre %></span></p>
+                                <p class="text-gray-400 mb-4">Price: ₹<span class="text-purple-300"><%= dj.price %></span></p>
+                                <div class="flex space-x-4">
+                                    <a href="/book/<%= dj.name %>" class="pulse-btn flex-1">Book Now</a>
+                                    <a href="/dj-details/<%= dj.name %>" class="pulse-btn flex-1">View Details</a>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <p class="text-center text-gray-400 text-xl">No DJs available.</p>
+                    <% } %>
+                </div>
+            </main>
+
+            <footer>
+                <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
+            </footer>
+        </div>
+    </body>
 </html>

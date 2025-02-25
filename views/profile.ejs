@@ -68,12 +68,13 @@
                     <div class="space-y-4">
                         <p class="text-gray-400">Username: <span class="text-teal-300"><%= user.username %></span></p>
                         <p class="text-gray-400">Email: <span class="text-teal-300"><%= user.email %></span></p>
-                        <p class="text-gray-400">Age: <span class="text-teal-300"><%= user.age %></span></p>
-                        <p class="text-gray-400">Role: <span class="text-purple-300"><%= user.role %></span></p>
+                        <p class="text-gray-400">Age: <span class="text-purple-300"><%= user.age %></span></p>
+                        <p class="text-gray-400">Role: <span class="text-blue-300"><%= user.role %></span></p>
                     </div>
                 <% } else { %>
                     <p class="text-red-500 text-center">User not found. Please log in again.</p>
                 <% } %>
+                <a href="/dashboard" class="mt-6 inline-block px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Return to Dashboard</a>
             </div>
         </main>
 

@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title">DJ Booking</title>
+    <title>Book DJ - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/js/language.js" defer></script>
     <style>
         body {
             background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
@@ -57,41 +56,6 @@
             transform: scale(1.05);
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.7);
         }
-        .language-toggle, .theme-toggle {
-            background: rgba(45, 55, 72, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 0.5rem;
-            padding: 0.5rem;
-            color: white;
-            transition: border-color 0.3s ease;
-        }
-        .language-toggle:focus, .theme-toggle:focus {
-            border-color: #38bdf8;
-            outline: none;
-            background: rgba(66, 153, 225, 0.1);
-        }
-        .light-mode {
-            background-color: #ffffff;
-            color: #000000;
-        }
-        .light-mode .overlay {
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        .light-mode .header-gradient {
-            background: linear-gradient(to right, #4a90e2, #d3d3d3);
-            border-bottom: 2px solid rgba(0, 0, 0, 0.1);
-        }
-        .light-mode .booking-container, .light-mode .language-toggle, .light-mode .theme-toggle {
-            background: #f5f5f5;
-            border-color: rgba(0, 0, 0, 0.1);
-            color: #000000;
-        }
-        .light-mode .booking-container:hover {
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-        }
-        .light-mode .text-gray-400, .light-mode .text-teal-300, .light-mode .text-purple-300, .light-mode .text-orange-300, .light-mode .text-pink-300, .light-mode .text-red-300, .light-mode .text-green-300, .light-mode .text-blue-300 {
-            color: #000000 !important;
-        }
         .attractive-heading {
             background: linear-gradient(to right, #38bdf8, #ffffff);
             -webkit-background-clip: text;
@@ -111,22 +75,11 @@
     <div class="overlay flex flex-col min-h-screen">
         <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
             <div class="container mx-auto flex justify-between items-center">
-                <h1 class="attractive-heading" data-i18n="bookDj">Book <%= djName %></h1>
+                <h1 class="attractive-heading">🎧 Book <%= djName %></h1>
                 <div class="flex items-center space-x-4">
-                    <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium" data-i18n="dashboard">Dashboard</a>
-                    <div class="flex space-x-2">
-                        <select id="languageSelect" class="language-toggle">
-                            <option value="en">English</option>
-                            <option value="hi">हिन्दी</option>
-                            <option value="mr">मराठी</option>
-                        </select>
-                        <label class="theme-toggle flex items-center">
-                            <input type="checkbox" id="themeToggle" class="hidden">
-                            <span class="px-4 py-2 rounded-lg text-white font-medium">🌙☀️</span>
-                        </label>
-                    </div>
+                    <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
                     <form action="/logout" method="POST">
-                        <button class="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-700 transition font-medium" data-i18n="logout">Logout</button>
+                        <button class="px-4 py-2 bg-red-500 rounded-lg hover:bg-red-700 transition font-medium">Logout</button>
                     </form>
                 </div>
             </div>
@@ -134,60 +87,60 @@
 
         <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
             <div class="w-full max-w-lg booking-container p-8">
-                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300" data-i18n="bookDj">Book Your DJ</h2>
+                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Book Your DJ</h2>
                 <% if (error) { %>
-                    <p class="text-red-500 text-center mb-4" data-i18n="error"><%= error %></p>
+                    <p class="text-red-500 text-center mb-4"><%= error %></p>
                 <% } %>
                 <% if (message) { %>
-                    <p class="text-green-500 text-center mb-4" data-i18n="message"><%= message %></p>
+                    <p class="text-green-500 text-center mb-4"><%= message %></p>
                 <% } %>
                 <form class="space-y-6" method="POST" action="/book/<%= djName %>" enctype="multipart/form-data">
                     <div>
-                        <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="fullName">Full Name</label>
-                        <input id="fullName" name="fullName" type="text" class="input-field" placeholder data-i18n="fullNamePlaceholder">e.g., John Doe</input> required>
+                        <label for="fullName" class="block text-sm font-medium text-gray-300 mb-1">Full Name</label>
+                        <input id="fullName" name="fullName" type="text" class="input-field" placeholder="e.g., John Doe" required>
                     </div>
                     <div>
-                        <label for="address" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="address">Address</label>
-                        <textarea id="address" name="address" class="input-field" placeholder data-i18n="addressPlaceholder">Your address</textarea> required>
+                        <label for="address" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                        <textarea id="address" name="address" class="input-field" placeholder="Your address" required></textarea>
                     </div>
                     <div>
-                        <label for="mobile" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="mobile">Mobile Number</label>
-                        <input id="mobile" name="mobile" type="text" class="input-field" placeholder data-i18n="mobilePlaceholder">e.g., 9876543210</input> pattern="[0-9]{10}" required>
+                        <label for="mobile" class="block text-sm font-medium text-gray-300 mb-1">Mobile Number</label>
+                        <input id="mobile" name="mobile" type="text" class="input-field" placeholder="e.g., 9876543210" pattern="[0-9]{10}" required>
                     </div>
                     <div>
-                        <label for="date" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="date">Date</label>
+                        <label for="date" class="block text-sm font-medium text-gray-300 mb-1">Date</label>
                         <input id="date" name="date" type="date" class="input-field" required>
                     </div>
                     <div>
-                        <label for="time" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="time">Time</label>
+                        <label for="time" class="block text-sm font-medium text-gray-300 mb-1">Time</label>
                         <input id="time" name="time" type="time" class="input-field" required>
                     </div>
                     <div>
-                        <label for="location" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="eventLocation">Event Location</label>
-                        <input id="location" name="location" type="text" class="input-field" placeholder data-i18n="eventLocationPlaceholder">e.g., Party Hall, Delhi</input> required>
+                        <label for="location" class="block text-sm font-medium text-gray-300 mb-1">Event Location</label>
+                        <input id="location" name="location" type="text" class="input-field" placeholder="e.g., Party Hall, Delhi" required>
                     </div>
                     <div>
-                        <label for="aadhaar" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="aadhaar">Aadhaar Number</label>
-                        <input id="aadhaar" name="aadhaar" type="text" class="input-field" placeholder data-i18n="aadhaarPlaceholder">e.g., 1234 5678 9012</input> pattern="\d{4}\s\d{4}\s\d{4}" required>
+                        <label for="aadhaar" class="block text-sm font-medium text-gray-300 mb-1">Aadhaar Number</label>
+                        <input id="aadhaar" name="aadhaar" type="text" class="input-field" placeholder="e.g., 1234 5678 9012" pattern="\d{4}\s\d{4}\s\d{4}" required>
                     </div>
                     <div>
-                        <label for="photo" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="photo">Upload Photo (Optional)</label>
+                        <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">Upload Photo (Optional)</label>
                         <input id="photo" name="photo" type="file" class="input-field">
                     </div>
                     <div>
-                        <label for="notes" class="block text-sm font-medium text-gray-300 mb-1" data-i18n="notes">Additional Notes (Optional)</label>
-                        <textarea id="notes" name="notes" class="input-field" placeholder data-i18n="notesPlaceholder">Any special requests</textarea>
+                        <label for="notes" class="block text-sm font-medium text-gray-300 mb-1">Additional Notes (Optional)</label>
+                        <textarea id="notes" name="notes" class="input-field" placeholder="Any special requests"></textarea>
                     </div>
-                    <button type="submit" class="submit-btn w-full px-4 py-3 rounded-lg text-white font-semibold" data-i18n="bookNow">Book Now</button>
+                    <button type="submit" class="submit-btn w-full px-4 py-3 rounded-lg text-white font-semibold">Book Now</button>
                 </form>
                 <p class="text-center mt-6 text-sm">
-                    <a href="/dashboard" class="text-blue-400 hover:underline" data-i18n="cancelDashboard">Cancel and Return to Dashboard</a>
+                    <a href="/dashboard" class="text-blue-400 hover:underline">Cancel and Return to Dashboard</a>
                 </p>
             </div>
         </main>
 
         <footer class="bg-gray-800 p-6 text-center">
-            <p class="text-sm" data-i18n="footer">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline" data-i18n="contactUs">Contact Us</a></p>
+            <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
         </footer>
     </div>
 </body>
