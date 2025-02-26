@@ -6,6 +6,8 @@
     <title>Dashboard - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"> <!-- New font: Poppins -->
+    <link rel="stylesheet" href="/css/dashboard-cards.css"> <!-- Link to new CSS file -->
     <style>
         html {
             scroll-behavior: smooth; /* Enables smooth scrolling */
@@ -22,6 +24,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            font-family: 'Poppins', sans-serif; /* New font for all text */
         }
         .overlay {
             background-color: rgba(0, 0, 0, 0.6);
@@ -67,7 +70,7 @@
             background-clip: text;
             color: transparent;
             font-size: 3.5rem;
-            font-weight: bold;
+            font-weight: 600; /* Match Poppins font weight */
             text-shadow: 0 6px 15px rgba(56, 189, 248, 0.5);
             animation: fadeInBounce 2s ease-in-out;
         }
@@ -92,29 +95,6 @@
             background: rgba(66, 153, 225, 0.1);
             transform: scale(1.02);
         }
-        .dj-card {
-            background: linear-gradient(135deg, #374151, #1f2937);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.5rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            padding: 1.5rem;
-        }
-        .dj-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-        }
-        .dj-photo {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 1rem;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease;
-        }
-        .dj-photo:hover {
-            transform: scale(1.05);
-        }
         .pulse-btn {
             background: linear-gradient(to right, #3b82f6, #1d4ed8);
             border-radius: 0.75rem;
@@ -122,23 +102,26 @@
             transition: all 0.3s ease;
             padding: 0.75rem 1.5rem;
             font-size: 1rem;
-            font-weight: bold;
+            font-weight: 600; /* Match Poppins font weight */
+            animation: pulseAnimation 2s infinite ease-in-out; /* Subtle pulsing animation for buttons */
+            font-family: 'Poppins', sans-serif; /* Apply new font */
         }
         .pulse-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.8);
-            animation: pulse 2s infinite;
+            animation: none; /* Stop pulsing on hover */
         }
-        @keyframes pulse {
-            0% { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
-            50% { box-shadow: 0 10px 30px rgba(59, 130, 246, 0.9); }
-            100% { box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+        @keyframes pulseAnimation {
+            0% { transform: scale(1); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
         }
         footer {
             background: rgba(31, 41, 55, 0.9);
             padding: 1.5rem;
             text-align: center;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Poppins', sans-serif; /* Apply new font */
         }
     </style>
     <script>
@@ -177,6 +160,9 @@
                         }
                     });
                 });
+
+                // Ensure the input is focusable and not obscured by animations
+                searchInput.focus();
             }
         });
     </script>
@@ -203,7 +189,7 @@
             <div id="particles-js"></div>
             <div class="container mx-auto dashboard-content">
                 <% if (error) { %>
-                    <p class="text-red-500 text-center mb-6 text-xl"><%= error %></p>
+                    <p class="text-red-500 text-center mb-6 text-xl animate-pulse"><%= error %></p>
                 <% } %>
                 
                 <div class="mb-8 flex justify-center">

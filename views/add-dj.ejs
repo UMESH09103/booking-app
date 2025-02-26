@@ -91,7 +91,11 @@
                 <% if (error) { %>
                     <p class="text-red-500 text-center mb-4"><%= error %></p>
                 <% } %>
-                <% if (message) { %>
+                <% if (message && redirect) { %>
+                    <p class="text-green-500 text-center mb-4"><%= message %></p>
+                    <!-- Client-side redirect after 2 seconds -->
+                    <meta http-equiv="refresh" content="2;url=/dashboard">
+                <% } else if (message) { %>
                     <p class="text-green-500 text-center mb-4"><%= message %></p>
                 <% } %>
                 <form class="space-y-6" method="POST" action="/add-dj" enctype="multipart/form-data">
@@ -137,11 +141,11 @@
                     </div>
                     <div>
                         <label for="photo" class="block text-sm font-medium text-gray-300 mb-1">DJ Photo (Optional)</label>
-                        <input id="photo" name="photo" type="file" class="input-field">
+                        <input id="photo" name="photo" type="file" class="input-field" accept="image/*">
                     </div>
                     <div>
                         <label for="ownerPhoto" class="block text-sm font-medium text-gray-300 mb-1">Owner Photo (Optional)</label>
-                        <input id="ownerPhoto" name="ownerPhoto" type="file" class="input-field">
+                        <input id="ownerPhoto" name="ownerPhoto" type="file" class="input-field" accept="image/*">
                     </div>
                     <button type="submit" class="submit-btn w-full px-4 py-3 rounded-lg text-white font-semibold">Add DJ</button>
                 </form>

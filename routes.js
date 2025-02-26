@@ -4,9 +4,37 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
-const { initiatePhonePePayment } = require("./phonepe"); // Import PhonePe logic
-
+const { initiatePhonePePayment } = require("./phonepe");
+const multer = require("multer");
 const router = express.Router();
+
+// Multer Configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + require("path").extname(file.originalname));
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/)) {
+      console.error("❌ File rejected:", file.originalname, "Unsupported type");
+      return cb(new Error("Only image files (jpg, jpeg, png, webp) are allowed!"), false);
+    }
+    console.log("✅ File accepted:", file.originalname);
+    cb(null, true);
+  },
+});
+
+// Middleware for multiple file uploads in /add-dj
+const uploadFields = upload.fields([
+  { name: "photo", maxCount: 1 },
+  { name: "ownerPhoto", maxCount: 1 },
+]);
 
 // Authentication Middleware
 function authenticateToken(req, res, next) {
@@ -14,15 +42,14 @@ function authenticateToken(req, res, next) {
   if (!token) return res.redirect("/login");
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.redirect("/login");
-    req.user = user; // Already has user.id and email from token
-    // Fetch user from DB to get role
+    req.user = user;
     User.findById(user.id)
-      .then(dbUser => {
+      .then((dbUser) => {
         if (!dbUser) return res.redirect("/login");
-        req.user.role = dbUser.role; // Add role to req.user
+        req.user.role = dbUser.role;
         next();
       })
-      .catch(err => {
+      .catch((err) => {
         console.error("❌ User Fetch Error:", err.message);
         res.redirect("/login");
       });
@@ -50,7 +77,7 @@ router.get("/register", (req, res) => {
 
 // Handle User Registration
 router.post("/register", async (req, res) => {
-  const { username, email, password, age, role } = req.body; // Add role to form data
+  const { username, email, password, age, role } = req.body;
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -63,7 +90,7 @@ router.post("/register", async (req, res) => {
       return res.render("register", { error: "You must be at least 13 years old!", message: null });
     }
     const hash = await bcrypt.hash(password, 10);
-    await User.create({ username, email, password: hash, age, role: role || "user" }); // Default to "user" if not provided
+    await User.create({ username, email, password: hash, age, role: role || "user" });
     res.render("register", { error: null, message: "Account created successfully! Redirecting to login..." });
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
@@ -125,6 +152,17 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 });
 
+// History Page
+router.get("/history", authenticateToken, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
+    res.render("history", { bookings });
+  } catch (err) {
+    console.error("❌ History Error:", err.message);
+    res.render("history", { bookings: [], error: "Failed to load booking history" });
+  }
+});
+
 // Logout Route
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
@@ -140,20 +178,61 @@ router.get("/add-dj", authenticateToken, (req, res) => {
 });
 
 // Handle Add DJ Submission (POST) - Restricted to admins
-router.post("/add-dj", authenticateToken, async (req, res) => {
+router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.redirect("/dashboard?error=Unauthorized access");
   }
-  const { name, genre, experience, price, sinceYear, nextAvailableDates, ownerName, mobile, address, restrictions } = req.body;
-  const photo = req.files && req.files.photo ? `/images/${req.files.photo[0].filename}` : null;
-  const ownerPhoto = req.files && req.files.ownerPhoto ? `/images/${req.files.ownerPhoto[0].filename}` : null;
+
+  const {
+    name,
+    genre,
+    experience,
+    price,
+    sinceYear,
+    nextAvailableDates,
+    ownerName,
+    mobile,
+    address,
+    restrictions,
+  } = req.body;
+
+  const photo = req.files && req.files["photo"] ? `/images/${req.files["photo"][0].filename}` : null;
+  const ownerPhoto = req.files && req.files["ownerPhoto"] ? `/images/${req.files["ownerPhoto"][0].filename}` : null;
 
   try {
+    // Enhanced validation
     if (!name || !genre || !experience || !price || !sinceYear || !ownerName || !mobile || !address) {
-      return res.render("add-dj", { error: "All fields except photo, owner photo, next available dates, and restrictions are required!", message: null });
+      return res.render("add-dj", {
+        error: "All fields except photo, owner photo, next available dates, and restrictions are required!",
+        message: null,
+      });
     }
     if (!/^\d{10}$/.test(mobile)) {
       return res.render("add-dj", { error: "Mobile number must be 10 digits!", message: null });
+    }
+    if (isNaN(experience) || experience < 0) {
+      return res.render("add-dj", { error: "Experience must be a positive number!", message: null });
+    }
+    if (isNaN(price) || price <= 0) {
+      return res.render("add-dj", { error: "Price must be a positive number!", message: null });
+    }
+    if (isNaN(sinceYear) || sinceYear < 1900 || sinceYear > new Date().getFullYear()) {
+      return res.render("add-dj", { error: "Since Year must be a valid year!", message: null });
+    }
+
+    // Check for duplicate DJ name
+    const existingDJ = await DJ.findOne({ name });
+    if (existingDJ) {
+      return res.render("add-dj", { error: "DJ with this name already exists!", message: null });
+    }
+
+    // Parse nextAvailableDates if provided
+    let parsedDates = [];
+    if (nextAvailableDates) {
+      parsedDates = nextAvailableDates.split(",").map((date) => new Date(date.trim()));
+      if (parsedDates.some((date) => isNaN(date.getTime()))) {
+        return res.render("add-dj", { error: "Invalid date format in Next Available Dates!", message: null });
+      }
     }
 
     const dj = new DJ({
@@ -162,21 +241,27 @@ router.post("/add-dj", authenticateToken, async (req, res) => {
       experience: parseInt(experience),
       price: parseInt(price),
       sinceYear: parseInt(sinceYear),
-      nextAvailableDates,
+      nextAvailableDates: parsedDates,
       ownerName,
       mobile,
       address,
-      restrictions,
+      restrictions: restrictions || "",
       photo,
       ownerPhoto,
       addedBy: req.user.id,
     });
 
     await dj.save();
-    res.render("add-dj", { error: null, message: "DJ added successfully! Redirecting to dashboard..." });
+
+    // Render success page with client-side redirect
+    res.render("add-dj", {
+      error: null,
+      message: "DJ added successfully! You will be redirected to the dashboard in 2 seconds...",
+      redirect: true, // Pass a flag to indicate redirect
+    });
   } catch (err) {
     console.error("❌ Add DJ Error:", err.message);
-    res.render("add-dj", { error: "Failed to add DJ. Try again.", message: null });
+    res.render("add-dj", { error: `Failed to add DJ: ${err.message}`, message: null });
   }
 });
 
@@ -187,7 +272,7 @@ router.get("/book/:djName", authenticateToken, (req, res) => {
 });
 
 // Handle Booking Submission (POST)
-router.post("/book/:djName", authenticateToken, async (req, res) => {
+router.post("/book/:djName", authenticateToken, upload.single("photo"), async (req, res) => {
   const djName = req.params.djName;
   const { fullName, address, mobile, date, time, location, aadhaar, notes } = req.body;
   const photo = req.file ? `/images/${req.file.filename}` : null;
@@ -223,9 +308,8 @@ router.post("/book/:djName", authenticateToken, async (req, res) => {
       return res.render("book", { djName, error: "DJ not found", message: null });
     }
 
-    // Initiate PhonePe payment
     const paymentUrl = await initiatePhonePePayment(savedBooking._id, dj.price, req.user.id, mobile);
-    console.log("Redirecting to PhonePe URL:", paymentUrl); // Debug log
+    console.log("Redirecting to PhonePe URL:", paymentUrl);
     res.redirect(paymentUrl);
   } catch (err) {
     console.error("❌ Booking or Payment Error:", err.message);
@@ -233,7 +317,7 @@ router.post("/book/:djName", authenticateToken, async (req, res) => {
   }
 });
 
-// Payment Page (GET) - For collecting payment details
+// Payment Page (GET)
 router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
   const { bookingId } = req.params;
   try {
@@ -252,7 +336,7 @@ router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
   }
 });
 
-// Handle Payment Submission (POST) - Mock implementation (replace with actual PhonePe integration)
+// Handle Payment Submission (POST) - Mock implementation
 router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
   const { bookingId } = req.params;
   const { paymentMethod, cardNumber, expiry, cvv, upiId, bank } = req.body;
@@ -267,23 +351,26 @@ router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
       return res.render("payment", { djName: booking.djName, amount: 0, bookingId, error: "DJ not found" });
     }
 
-    // Mock payment processing (replace with actual PhonePe integration)
     let paymentSuccess = false;
     if (paymentMethod === "card" && cardNumber && expiry && cvv) {
-      // Validate card details (simplified)
-      paymentSuccess = true; // Mock success for testing
+      paymentSuccess = true; // Mock success
     } else if (paymentMethod === "upi" && upiId) {
-      paymentSuccess = true; // Mock success for testing
+      paymentSuccess = true; // Mock success
     } else if (paymentMethod === "netbanking" && bank) {
-      paymentSuccess = true; // Mock success for testing
+      paymentSuccess = true; // Mock success
     }
 
     if (paymentSuccess) {
-      // In production, integrate with PhonePe or other payment gateway here
       console.log("Payment processed successfully for booking:", bookingId);
       res.render("payment", { success: true, djName: booking.djName, amount: dj.price, bookingId });
     } else {
-      res.render("payment", { success: false, djName: booking.djName, amount: dj.price, bookingId, error: "Payment failed. Please check your details." });
+      res.render("payment", {
+        success: false,
+        djName: booking.djName,
+        amount: dj.price,
+        bookingId,
+        error: "Payment failed. Please check your details.",
+      });
     }
   } catch (err) {
     console.error("❌ Payment Processing Error:", err.message);
@@ -291,7 +378,7 @@ router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
   }
 });
 
-// Payment Callback Route (after PhonePe redirect)
+// Payment Callback Route
 router.get("/payment-callback/:bookingId", async (req, res) => {
   const { bookingId } = req.params;
   try {
@@ -299,8 +386,7 @@ router.get("/payment-callback/:bookingId", async (req, res) => {
     if (!booking) {
       return res.render("payment", { success: false, djName: "", amount: 0, bookingId });
     }
-    // TODO: Verify payment status with PhonePe /pg/v1/status API in production
-    console.log("Payment callback for booking:", bookingId); // Debug log
+    console.log("Payment callback for booking:", bookingId);
     const dj = await DJ.findOne({ name: booking.djName });
     res.render("payment", { success: true, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
   } catch (err) {
@@ -325,6 +411,28 @@ router.get("/dj-details/:djName", authenticateToken, async (req, res) => {
   } catch (err) {
     console.error("❌ DJ Details Error:", err.message);
     res.render("dashboard", { user: req.user, djs: [], error: "Failed to load DJ details" });
+  }
+});
+
+// Profile Photo Upload Route
+router.post("/profile/photo", authenticateToken, upload.single("photo"), async (req, res) => {
+  try {
+    console.log("Request body:", req.body);
+    console.log("File received:", req.file || "No file received");
+    const photo = req.file ? `/images/${req.file.filename}` : null;
+    if (!photo) {
+      return res.json({ error: "No photo uploaded or invalid file" });
+    }
+    const user = await User.findByIdAndUpdate(req.user.id, { photo }, { new: true });
+    if (!user) {
+      return res.json({ error: "User not found" });
+    }
+    req.user.photo = photo;
+    console.log("✅ Photo updated for user:", user.email, "Path:", photo);
+    res.json({ user, error: null, message: "Profile photo updated successfully!" });
+  } catch (err) {
+    console.error("❌ Profile Photo Upload Error:", err.message);
+    res.json({ error: "Failed to upload photo. Try again." });
   }
 });
 

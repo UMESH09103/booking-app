@@ -1,0 +1,85 @@
+/* dashboard-cards.css */
+.dj-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #374151, #1f2937);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1rem;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    padding: 1.5rem;
+    font-family: 'Poppins', sans-serif; /* Match dashboard font */
+    animation: slideUp 1s ease-out forwards; /* Slide-up animation */
+}
+
+.dj-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dj-card .dj-photo {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+    animation: fadeIn 1.5s ease-out; /* Fade-in animation for photos */
+}
+
+.dj-card:hover .dj-photo {
+    transform: scale(1.05);
+    opacity: calc(1 - var(--active)); /* Fade out on hover for detail effect */
+}
+
+.dj-card .profile-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 1rem;
+    background: rgba(45, 55, 72, 0.8);
+    border-radius: 0.75rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    transform: translateY(100%);
+    transition: transform 0.5s cubic-bezier(0.23, 0.93, 0.97, 0.01); /* Smooth curve for reveal */
+    z-index: 1;
+    color: white;
+    text-align: center;
+    opacity: 0;
+}
+
+.dj-card:hover .profile-detail {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.dj-card .profile-detail h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #38bdf8;
+}
+
+.dj-card .profile-detail p {
+    font-size: 0.875rem;
+    color: #a0aec0;
+    margin-bottom: 0.5rem;
+}
+
+.dj-card .profile-detail .flex.space-x-4 {
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+@keyframes slideUp {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

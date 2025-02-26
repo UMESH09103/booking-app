@@ -1,0 +1,53 @@
+/* profile-frame.css */
+.profile-frame {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #374151, #1f2937);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-frame:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.profile-photo {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 1.5rem;
+    transition: opacity 0.3s ease;
+    animation: fadeIn 1.5s ease-out;
+}
+
+.profile-frame:hover .profile-photo {
+    opacity: 0.7; /* Subtle fade on hover */
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.profile-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+    border-radius: 1.5rem;
+    z-index: 1;
+    animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+    0% { opacity: 0.5; }
+    100% { opacity: 0.8; }
+}

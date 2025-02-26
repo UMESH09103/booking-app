@@ -17,14 +17,14 @@
             overflow-x: hidden;
         }
         .overlay {
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7); /* Slightly darker for cleaner look */
             min-height: 100vh;
         }
         .header-gradient {
             background: linear-gradient(to right, #0d9488, #6b7280);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            padding: 0.5rem 0; /* Minimal padding for sleek look */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
+            padding: 0.75rem 0; /* Balanced padding for sleekness */
         }
         .hero-section {
             position: relative;
@@ -37,100 +37,71 @@
         .hero-content {
             z-index: 10;
             text-align: center;
+            max-width: 800px; /* Restrict width for cleaner layout */
         }
         .attractive-heading {
-            background: linear-gradient(45deg, #ff6b6b, #ffffff, #4ecdc4, #ff6b6b); /* Vibrant gradient */
+            background: linear-gradient(45deg, #38bdf8, #ffffff); /* Cleaner, simpler gradient */
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            font-size: 3.5rem; /* Reduced size for minimization */
+            font-size: 4rem; /* Balanced size for elegance */
             font-weight: bold;
             font-family: 'Arial', sans-serif;
-            text-shadow: 0 10px 20px rgba(255, 107, 107, 0.5), 0 0 15px rgba(78, 205, 196, 0.3); /* Softer shadows */
-            animation: waooBounce 2s ease-in-out infinite, fadeInBounce 2.5s ease-in-out;
-            letter-spacing: 2px; /* Reduced spacing for compactness */
+            text-shadow: 0 8px 16px rgba(56, 189, 248, 0.4); /* Softer, cleaner shadow */
+            animation: fadeInBounce 2s ease-in-out;
+            letter-spacing: 1px; /* Reduced for cleaner look */
             text-transform: uppercase;
-            text-stroke: 1px rgba(255, 255, 255, 0.1); /* Lighter outline */
-            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
-        }
-        @keyframes waooBounce {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-10px) scale(1.03); } /* Subtle bounce */
         }
         @keyframes fadeInBounce {
-            0% { opacity: 0; transform: scale(0.8) translateY(30px); } /* Reduced scale and distance */
-            50% { transform: scale(1.1) translateY(-10px); }
+            0% { opacity: 0; transform: scale(0.9) translateY(30px); }
+            50% { transform: scale(1.05) translateY(-5px); }
             100% { opacity: 1; transform: scale(1) translateY(0); }
         }
         .subheading {
-            font-size: 1.25rem; /* Reduced size for balance */
+            font-size: 1.5rem; /* Cleaner, balanced size */
             color: #a0aec0;
-            margin-top: 1rem;
+            margin-top: 1.25rem;
+            margin-bottom: 2.5rem; /* Increased margin to balance layout without features */
             animation: slideIn 1.5s ease-in-out;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Softer shadow */
         }
         @keyframes slideIn {
-            0% { opacity: 0; transform: translateX(-80px); } /* Reduced distance */
+            0% { opacity: 0; transform: translateX(-50px); }
             100% { opacity: 1; transform: translateX(0); }
         }
         .dj-image {
             background: url('/images/dj-placeholder.jpg') no-repeat center center;
             background-size: cover;
-            border-radius: 1.5rem;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5); /* Reduced shadow */
+            border-radius: 1rem; /* Slightly smaller radius for modern look */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Lighter shadow for cleaner appearance */
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             width: 100%;
-            height: 300px; /* Reduced height for compactness */
-            margin: 1.5rem auto; /* Reduced margin */
+            height: 350px; /* Reduced for balance */
+            margin: 2rem auto;
+            max-width: 600px; /* Restrict width for cleaner layout */
         }
         .dj-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
-        }
-        .features-section {
-            padding: 2rem 0; /* Reduced padding for compactness */
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9));
-        }
-        .feature-card {
-            background: linear-gradient(135deg, #374151, #1f2937);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1.25rem; /* Slightly smaller radius */
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Reduced shadow */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            padding: 1.5rem; /* Reduced padding */
-        }
-        .feature-card:hover {
-            transform: translateY(-8px); /* Reduced lift */
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-        }
-        .feature-icon {
-            font-size: 2rem; /* Reduced size */
-            color: #38bdf8;
-            margin-bottom: 0.75rem; /* Reduced margin */
-            animation: spin 2s infinite linear;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            transform: scale(1.03); /* Subtle scaling */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
         .pulse-btn {
             background: linear-gradient(to right, #3b82f6, #1d4ed8);
             border-radius: 0.75rem;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); /* Lighter shadow */
             transition: all 0.3s ease;
-            padding: 0.875rem 2rem; /* Reduced padding */
-            font-size: 1rem; /* Reduced size */
+            padding: 0.875rem 2rem;
+            font-size: 1.125rem; /* Balanced size */
             font-weight: bold;
         }
         .pulse-btn:hover {
-            transform: scale(1.05); /* Reduced scale */
-            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.7);
+            transform: scale(1.05);
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.5);
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0% { box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5); }
-            50% { box-shadow: 0 8px 25px rgba(59, 130, 246, 0.8); }
-            100% { box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5); }
+            0% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 6px 18px rgba(59, 130, 246, 0.5); }
+            100% { box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         }
         #particles-js {
             position: absolute;
@@ -146,53 +117,43 @@
             background-repeat: no-repeat;
             background-size: cover;
         }
-        /* Responsive Adjustments */
+        /* Responsive Design for Cleaner Look */
         @media (max-width: 768px) {
             .header-gradient {
-                padding: 0.25rem 0;
+                padding: 0.5rem 0;
             }
             .attractive-heading {
                 font-size: 2.5rem;
             }
             .subheading {
-                font-size: 1rem;
+                font-size: 1.25rem;
             }
             .pulse-btn {
                 padding: 0.75rem 1.5rem;
-                font-size: 0.875rem;
+                font-size: 1rem;
             }
             .dj-image {
                 height: 250px;
-            }
-            .feature-card {
-                padding: 1rem;
-            }
-            .feature-icon {
-                font-size: 1.5rem;
+                max-width: 400px;
             }
         }
         @media (max-width: 480px) {
             .header-gradient {
-                padding: 0.1rem 0;
+                padding: 0.25rem 0;
             }
             .attractive-heading {
                 font-size: 2rem;
             }
             .subheading {
-                font-size: 0.875rem;
+                font-size: 1rem;
             }
             .pulse-btn {
                 padding: 0.625rem 1.25rem;
-                font-size: 0.75rem;
+                font-size: 0.875rem;
             }
             .dj-image {
                 height: 200px;
-            }
-            .feature-card {
-                padding: 0.875rem;
-            }
-            .feature-icon {
-                font-size: 1.25rem;
+                max-width: 300px;
             }
         }
     </style>
@@ -224,9 +185,9 @@
             <section class="hero-section parallax">
                 <div class="container mx-auto p-8 flex items-center justify-center">
                     <div class="hero-content">
-                        <h1 class="attractive-heading mb-4">Welcome to DJ Booking</h1> <!-- Reduced margin -->
-                        <p class="subheading mb-6">Unleash the rhythm—find and book the best DJs for your unforgettable events!</p> <!-- Reduced margin -->
-                        <div class="flex justify-center space-x-4 mb-8"> <!-- Reduced margin -->
+                        <h1 class="attractive-heading mb-6">Welcome to DJ Booking</h1>
+                        <p class="subheading mb-12">Unleash the rhythm—find and book the best DJs for your unforgettable events!</p>
+                        <div class="flex justify-center space-x-4 mb-16"> <!-- Increased margin to balance layout -->
                             <% if (user) { %>
                                 <a href="/dashboard" class="pulse-btn">Explore DJs Now</a>
                             <% } else { %>
@@ -234,42 +195,19 @@
                                 <a href="/register" class="pulse-btn">Register Now</a>
                             <% } %>
                         </div>
-                        <!-- Moved "Why Choose Us?" Section Here -->
-                        <section class="features-section">
-                            <div class="container mx-auto p-8">
-                                <h2 class="text-2xl font-bold text-blue-300 text-center mb-8">Why Choose Us?</h2> <!-- Reduced size -->
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <div class="feature-card text-center">
-                                        <div class="feature-icon">🎵</div>
-                                        <h3 class="text-lg font-semibold text-teal-300 mb-3">Top DJs</h3> <!-- Reduced size and margin -->
-                                        <p class="text-gray-400 text-sm">Access a curated list of professional DJs for any event.</p> <!-- Reduced size -->
-                                    </div>
-                                    <div class="feature-card text-center">
-                                        <div class="feature-icon">📅</div>
-                                        <h3 class="text-lg font-semibold text-teal-300 mb-3">Easy Booking</h3>
-                                        <p class="text-gray-400 text-sm">Book in minutes with secure payment options.</p>
-                                    </div>
-                                    <div class="feature-card text-center">
-                                        <div class="feature-icon">🕒</div>
-                                        <h3 class="text-lg font-semibold text-teal-300 mb-3">24/7 Support</h3>
-                                        <p class="text-gray-400 text-sm">Our team is always ready to assist you.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
                     </div>
                 </div>
             </section>
 
             <!-- DJ Image Section with Animation -->
-            <section class="py-12 bg-gradient-to-b from-black to-gray-900"> <!-- Reduced padding -->
-                <div class="container mx-auto p-6"> <!-- Reduced padding -->
+            <section class="py-12 bg-gradient-to-b from-black to-gray-900">
+                <div class="container mx-auto p-6">
                     <div class="dj-image mx-auto max-w-3xl"></div>
                 </div>
             </section>
         </main>
 
-        <footer class="bg-gray-800 p-5 text-center"> <!-- Reduced padding -->
+        <footer class="bg-gray-800 p-5 text-center">
             <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
         </footer>
     </div>

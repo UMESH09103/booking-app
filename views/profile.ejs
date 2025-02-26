@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
             background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
@@ -12,46 +13,153 @@
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
         }
         .overlay {
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .header-gradient {
             background: linear-gradient(to right, #0d9488, #6b7280);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        .profile-card {
-            background: linear-gradient(135deg, #2d3748, #1a202c);
+        .profile-container {
+            background: linear-gradient(135deg, rgba(45, 55, 72, 0.9), rgba(26, 32, 44, 0.9));
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-            transition: transform 0.3s ease;
+            border-radius: 1.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 1s ease-out;
         }
-        .profile-card:hover {
-            transform: translateY(-5px);
+        .vinyl-record {
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle at center, #333 20%, #000 40%, #333 60%);
+            border-radius: 50%;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            animation: spin 10s linear infinite;
+            z-index: 0;
+            opacity: 0.3;
+        }
+        .vinyl-record::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #fff;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
         }
         .attractive-heading {
             background: linear-gradient(to right, #38bdf8, #ffffff);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            font-size: 2.5rem;
-            font-weight: bold;
-            animation: fadeIn 1s ease-in-out;
+            font-size: 3rem;
+            font-weight: 600;
+            text-shadow: 0 6px 12px rgba(56, 189, 248, 0.5);
+            animation: pulseText 2s infinite ease-in-out;
+            text-align: center;
         }
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(-10px); }
+        .profile-details {
+            position: relative;
+            z-index: 1;
+            color: #e5e7eb;
+            text-align: center;
+            animation: fadeInDetails 1.5s ease-out;
+        }
+        .detail-item {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 0.75rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .detail-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.3);
+        }
+        .detail-label {
+            font-size: 1.1rem;
+            color: #9ca3af;
+        }
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #38bdf8;
+        }
+        .back-btn {
+            background: linear-gradient(to right, #ec4899, #eab308); /* Pink to gold */
+            border-radius: 0.75rem;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .back-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(234, 179, 8, 0.6); /* Gold shadow */
+        }
+        footer {
+            background: rgba(31, 41, 55, 0.9);
+            padding: 1.5rem;
+            text-align: center;
+        }
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(50px); }
             100% { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes pulseText {
+            0% { text-shadow: 0 6px 12px rgba(56, 189, 248, 0.5); }
+            50% { text-shadow: 0 8px 16px rgba(56, 189, 248, 0.8); }
+            100% { text-shadow: 0 6px 12px rgba(56, 189, 248, 0.5); }
+        }
+        @keyframes fadeInDetails {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 640px) {
+            .attractive-heading {
+                font-size: 2rem;
+            }
+            .detail-value {
+                font-size: 1.2rem;
+            }
+            .vinyl-record {
+                width: 150px;
+                height: 150px;
+                top: -30px;
+                left: -30px;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <div class="overlay flex flex-col min-h-screen">
-        <header class="header-gradient p-4 sticky top-0 z-10 shadow-lg">
+<body class="bg-gray-900 text-white">
+    <div class="overlay">
+        <header class="header-gradient p-4">
             <div class="container mx-auto flex justify-between items-center">
-                <h1 class="attractive-heading">🎧 Profile</h1>
+                <h1 class="attractive-heading">🎧 Your DJ Profile</h1>
                 <div class="flex items-center space-x-4">
                     <a href="/dashboard" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Dashboard</a>
                     <form action="/logout" method="POST">
@@ -62,23 +170,37 @@
         </header>
 
         <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
-            <div class="w-full max-w-lg profile-card p-8">
-                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Your Profile</h2>
-                <% if (user) { %>
-                    <div class="space-y-4">
-                        <p class="text-gray-400">Username: <span class="text-teal-300"><%= user.username %></span></p>
-                        <p class="text-gray-400">Email: <span class="text-teal-300"><%= user.email %></span></p>
-                        <p class="text-gray-400">Age: <span class="text-purple-300"><%= user.age %></span></p>
-                        <p class="text-gray-400">Role: <span class="text-blue-300"><%= user.role %></span></p>
+            <div class="profile-container relative">
+                <div class="vinyl-record"></div>
+                <div class="profile-details">
+                    <% if (user) { %>
+                        <div class="detail-item">
+                            <span class="detail-label">Username:</span>
+                            <p class="detail-value"><%= user.username %></p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email:</span>
+                            <p class="detail-value"><%= user.email %></p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Age:</span>
+                            <p class="detail-value"><%= user.age %></p>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Role:</span>
+                            <p class="detail-value"><%= user.role %></p>
+                        </div>
+                    <% } else { %>
+                        <p class="text-red-500 text-center text-lg">User not found. Please log in again.</p>
+                    <% } %>
+                    <div class="mt-6 text-center">
+                        <a href="/dashboard" class="back-btn inline-block text-white">Back to Dashboard</a>
                     </div>
-                <% } else { %>
-                    <p class="text-red-500 text-center">User not found. Please log in again.</p>
-                <% } %>
-                <a href="/dashboard" class="mt-6 inline-block px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition font-medium">Return to Dashboard</a>
+                </div>
             </div>
         </main>
 
-        <footer class="bg-gray-800 p-6 text-center">
+        <footer>
             <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
         </footer>
     </div>
