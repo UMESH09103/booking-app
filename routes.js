@@ -5,37 +5,12 @@ const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
 const { initiatePaytmPayment } = require("./paytm");
-const multer = require("multer");
 const PaytmChecksum = require("paytmchecksum");
 
 const router = express.Router();
 
-// Multer Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/images/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + require("path").extname(file.originalname));
-  },
-});
-const upload = multer({
-  storage,
-  limits: { fileSize: 1024 * 1024 * 5 },
-  fileFilter: (req, file, cb) => {
-    if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/)) {
-      console.error("❌ File rejected:", file.originalname, "Unsupported type");
-      return cb(new Error("Only image files (jpg, jpeg, png, webp) are allowed!"), false);
-    }
-    console.log("✅ File accepted:", file.originalname);
-    cb(null, true);
-  },
-});
-
-const uploadFields = upload.fields([
-  { name: "photo", maxCount: 1 },
-  { name: "ownerPhoto", maxCount: 1 },
-]);
+// Use Multer instance from app.js
+const { upload, uploadFields } = require("./app");
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
@@ -237,8 +212,8 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
     restrictions,
   } = req.body;
 
-  const photo = req.files && req.files["photo"] ? `/images/${req.files["photo"][0].filename}` : null;
-  const ownerPhoto = req.files && req.files["ownerPhoto"] ? `/images/${req.files["ownerPhoto"][0].filename}` : null;
+  const photo = req.files && req.files["photo"] ? req.files["photo"][0].path : null;
+  const ownerPhoto = req.files && req.files["ownerPhoto"] ? req.files["ownerPhoto"][0].path : null;
 
   try {
     if (!name || !genre || !experience || !price || !sinceYear || !ownerName || !mobile || !address) {
@@ -318,7 +293,7 @@ router.get("/book/:djName", authenticateToken, async (req, res) => {
 router.post("/book/:djName", authenticateToken, upload.single("photo"), async (req, res) => {
   const djName = req.params.djName;
   const { fullName, address, mobile, date, time, location, aadhaar, notes } = req.body;
-  const photo = req.file ? `/images/${req.file.filename}` : null;
+  const photo = req.file ? req.file.path : null;
 
   try {
     if (!fullName || !address || !mobile || !date || !time || !location || !aadhaar) {
@@ -475,7 +450,7 @@ router.get("/dj-details/:djName", authenticateToken, async (req, res) => {
 
 router.post("/profile/photo", authenticateToken, upload.single("photo"), async (req, res) => {
   try {
-    const photo = req.file ? `/images/${req.file.filename}` : null;
+    const photo = req.file ? req.file.path : null;
     if (!photo) {
       return res.json({ error: "No photo uploaded or invalid file" });
     }
