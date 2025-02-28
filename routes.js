@@ -4,8 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
-const { initiatePaytmPayment } = require("./paytm"); // Updated to use Paytm
+const { initiatePaytmPayment } = require("./paytm");
 const multer = require("multer");
+const PaytmChecksum = require("paytmchecksum");
 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB limit
+  limits: { fileSize: 1024 * 1024 * 5 },
   fileFilter: (req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/)) {
       console.error("❌ File rejected:", file.originalname, "Unsupported type");
@@ -31,13 +32,11 @@ const upload = multer({
   },
 });
 
-// Middleware for multiple file uploads in /add-dj
 const uploadFields = upload.fields([
   { name: "photo", maxCount: 1 },
   { name: "ownerPhoto", maxCount: 1 },
 ]);
 
-// Authentication Middleware
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
   if (!token) return res.redirect("/login");
@@ -57,26 +56,21 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Landing Page
 router.get("/", (req, res) => {
   const token = req.cookies.token;
   let user = null;
   if (token) {
     try {
       user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      // Invalid token, ignore
-    }
+    } catch (err) {}
   }
   res.render("landing", { user });
 });
 
-// Register Page
 router.get("/register", (req, res) => {
   res.render("register", { error: null, message: null });
 });
 
-// Handle User Registration
 router.post("/register", async (req, res) => {
   const { username, email, password, age, role } = req.body;
   try {
@@ -99,12 +93,10 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login Page
 router.get("/login", (req, res) => {
   res.render("login", { message: null, error: null });
 });
 
-// Handle User Login
 router.post("/login", async (req, res) => {
   const { email, password, rememberMe } = req.body;
   try {
@@ -131,7 +123,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Dashboard Page
 router.get("/dashboard", authenticateToken, async (req, res) => {
   try {
     const djs = await DJ.find();
@@ -142,7 +133,6 @@ router.get("/dashboard", authenticateToken, async (req, res) => {
   }
 });
 
-// Profile Page
 router.get("/profile", authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -153,24 +143,75 @@ router.get("/profile", authenticateToken, async (req, res) => {
   }
 });
 
-// History Page
 router.get("/history", authenticateToken, async (req, res) => {
   try {
     const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
-    res.render("history", { bookings });
+    res.render("history", {
+      bookings,
+      error: req.query.error || null,
+      message: req.query.message || null,
+    });
   } catch (err) {
     console.error("❌ History Error:", err.message);
-    res.render("history", { bookings: [], error: "Failed to load booking history" });
+    res.render("history", {
+      bookings: [],
+      error: "Failed to load booking history",
+      message: null,
+    });
   }
 });
 
-// Logout Route
+router.post("/booking/cancel/:bookingId", authenticateToken, async (req, res) => {
+  const { bookingId } = req.params;
+  try {
+    const booking = await Booking.findById(bookingId);
+    if (!booking || booking.userId.toString() !== req.user.id) {
+      const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
+      return res.render("history", {
+        bookings,
+        error: "Invalid or unauthorized booking",
+        message: null,
+      });
+    }
+    if (booking.status === "cancelled") {
+      const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
+      return res.render("history", {
+        bookings,
+        error: "Booking already cancelled",
+        message: null,
+      });
+    }
+    if (booking.paymentStatus === "paid") {
+      console.log("ℹ️ Refund logic pending for booking:", bookingId);
+    }
+    booking.status = "cancelled";
+    await booking.save();
+    await DJ.updateOne(
+      { name: booking.djName },
+      { $addToSet: { nextAvailableDates: booking.date } }
+    );
+    const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
+    res.render("history", {
+      bookings,
+      error: null,
+      message: "Booking cancelled successfully",
+    });
+  } catch (err) {
+    console.error("❌ Cancel Booking Error:", err.message);
+    const bookings = await Booking.find({ userId: req.user.id }).sort({ date: -1 });
+    res.render("history", {
+      bookings,
+      error: "Failed to cancel booking",
+      message: null,
+    });
+  }
+});
+
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
   res.redirect("/login");
 });
 
-// Add DJ Page (GET) - Restricted to admins
 router.get("/add-dj", authenticateToken, (req, res) => {
   if (req.user.role !== "admin") {
     return res.redirect("/dashboard?error=Unauthorized access");
@@ -178,7 +219,6 @@ router.get("/add-dj", authenticateToken, (req, res) => {
   res.render("add-dj", { error: null, message: null });
 });
 
-// Handle Add DJ Submission (POST) - Restricted to admins
 router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   if (req.user.role !== "admin") {
     return res.redirect("/dashboard?error=Unauthorized access");
@@ -261,13 +301,20 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   }
 });
 
-// Booking Page (GET)
-router.get("/book/:djName", authenticateToken, (req, res) => {
+router.get("/book/:djName", authenticateToken, async (req, res) => {
   const djName = req.params.djName;
-  res.render("book", { djName, error: null, message: null });
+  try {
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.redirect("/dashboard?error=DJ not found");
+    }
+    res.render("book", { djName, error: null, message: null });
+  } catch (err) {
+    console.error("❌ Book Page Error:", err.message);
+    res.redirect("/dashboard?error=Failed to load booking page");
+  }
 });
 
-// Handle Booking Submission (POST) - Updated to use Paytm
 router.post("/book/:djName", authenticateToken, upload.single("photo"), async (req, res) => {
   const djName = req.params.djName;
   const { fullName, address, mobile, date, time, location, aadhaar, notes } = req.body;
@@ -284,26 +331,39 @@ router.post("/book/:djName", authenticateToken, upload.single("photo"), async (r
       return res.render("book", { djName, error: "Aadhaar must be in XXXX XXXX XXXX format!", message: null });
     }
 
+    const bookingDate = new Date(date);
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.render("book", { djName, error: "DJ not found", message: null });
+    }
+
+    const existingBooking = await Booking.findOne({
+      djName,
+      date: bookingDate,
+      paymentStatus: "paid",
+      status: "active",
+    });
+    if (existingBooking) {
+      return res.render("book", { djName, error: "DJ is already booked on this date!", message: null });
+    }
+
     const booking = new Booking({
       userId: req.user.id,
       djName,
       fullName,
       address,
       mobile,
-      date: new Date(date),
+      date: bookingDate,
       time,
       location,
       aadhaar,
       photo,
       notes: notes || "",
+      paymentStatus: "pending",
+      status: "active",
     });
 
     const savedBooking = await booking.save();
-    const dj = await DJ.findOne({ name: djName });
-    if (!dj) {
-      return res.render("book", { djName, error: "DJ not found", message: null });
-    }
-
     const paytmDetails = await initiatePaytmPayment(savedBooking._id, dj.price, djName, req.user.id, mobile);
     res.render("paytm-checkout", { paytmDetails, bookingId: savedBooking._id, djName });
   } catch (err) {
@@ -312,92 +372,89 @@ router.post("/book/:djName", authenticateToken, upload.single("photo"), async (r
   }
 });
 
-// Payment Page (GET)
-router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
+router.post("/payment-callback/:bookingId", async (req, res) => {
   const { bookingId } = req.params;
-  try {
-    const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.render("payment", { djName: "", amount: 0, bookingId, error: "Booking not found" });
-    }
-    const dj = await DJ.findOne({ name: booking.djName });
-    if (!dj) {
-      return res.render("payment", { djName: booking.djName, amount: 0, bookingId, error: "DJ not found" });
-    }
-    res.render("payment", { djName: booking.djName, amount: dj.price, bookingId, error: null });
-  } catch (err) {
-    console.error("❌ Payment Page Error:", err.message);
-    res.render("payment", { djName: "", amount: 0, bookingId, error: "Internal server error" });
-  }
-});
-
-// Handle Payment Submission (POST) - Mock implementation (unchanged)
-router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
-  const { bookingId } = req.params;
-  const { paymentMethod, cardNumber, expiry, cvv, upiId, bank } = req.body;
+  const paytmResponse = req.body;
 
   try {
     const booking = await Booking.findById(bookingId);
     if (!booking) {
-      return res.render("payment", { djName: "", amount: 0, bookingId, error: "Booking not found" });
+      return res.render("payment", {
+        success: false,
+        djName: "",
+        amount: 0,
+        bookingId,
+        error: "Booking not found",
+      });
     }
     const dj = await DJ.findOne({ name: booking.djName });
-    if (!dj) {
-      return res.render("payment", { djName: booking.djName, amount: 0, bookingId, error: "DJ not found" });
+
+    const checksumVerified = await PaytmChecksum.verifySignature(
+      paytmResponse,
+      process.env.PAYTM_MERCHANT_KEY,
+      paytmResponse.CHECKSUMHASH
+    );
+
+    if (!checksumVerified) {
+      booking.paymentStatus = "failed";
+      await booking.save();
+      console.error("❌ Checksum verification failed for booking:", bookingId);
+      return res.render("payment", {
+        success: false,
+        djName: booking.djName,
+        amount: dj ? dj.price : 0,
+        bookingId,
+        error: "Payment verification failed",
+      });
     }
 
-    let paymentSuccess = false;
-    if (paymentMethod === "card" && cardNumber && expiry && cvv) {
-      paymentSuccess = true; // Mock success
-    } else if (paymentMethod === "upi" && upiId) {
-      paymentSuccess = true; // Mock success
-    } else if (paymentMethod === "netbanking" && bank) {
-      paymentSuccess = true; // Mock success
-    }
-
-    if (paymentSuccess) {
-      console.log("Payment processed successfully for booking:", bookingId);
-      res.render("payment", { success: true, djName: booking.djName, amount: dj.price, bookingId });
+    if (paytmResponse.STATUS === "TXN_SUCCESS") {
+      booking.paymentStatus = "paid";
+      await booking.save();
+      await DJ.updateOne(
+        { name: booking.djName },
+        { $pull: { nextAvailableDates: booking.date } }
+      );
+      console.log("✅ Payment successful for booking:", bookingId);
+      res.redirect(`/booking-confirmation/${bookingId}`);
     } else {
+      booking.paymentStatus = "failed";
+      await booking.save();
+      console.log("❌ Payment failed for booking:", bookingId, "Status:", paytmResponse.STATUS);
       res.render("payment", {
         success: false,
         djName: booking.djName,
-        amount: dj.price,
+        amount: dj ? dj.price : 0,
         bookingId,
-        error: "Payment failed. Please check your details.",
+        error: "Payment failed",
       });
     }
   } catch (err) {
-    console.error("❌ Payment Processing Error:", err.message);
-    res.render("payment", { success: false, djName: "", amount: 0, bookingId, error: "Internal server error" });
+    console.error("❌ Payment Callback Error:", err.message);
+    res.render("payment", {
+      success: false,
+      djName: "",
+      amount: 0,
+      bookingId,
+      error: "Server error",
+    });
   }
 });
 
-// Payment Callback Route - Updated for Paytm
-router.get("/payment-callback/:bookingId", async (req, res) => {
+router.get("/booking-confirmation/:bookingId", authenticateToken, async (req, res) => {
   const { bookingId } = req.params;
-  const { STATUS } = req.query; // Paytm sends STATUS=TXN_SUCCESS on success
-
   try {
     const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.render("payment", { success: false, djName: "", amount: 0, bookingId });
+    if (!booking || booking.userId.toString() !== req.user.id) {
+      return res.redirect("/dashboard?error=Invalid or unauthorized booking");
     }
-    const dj = await DJ.findOne({ name: booking.djName });
-    if (STATUS === "TXN_SUCCESS") {
-      console.log("Payment successful for booking:", bookingId);
-      res.render("payment", { success: true, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
-    } else {
-      console.log("Payment failed or cancelled for booking:", bookingId, "Status:", STATUS);
-      res.render("payment", { success: false, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
-    }
+    res.render("booking-confirmation", { booking });
   } catch (err) {
-    console.error("❌ Payment Callback Error:", err.message);
-    res.render("payment", { success: false, djName: "", amount: 0, bookingId });
+    console.error("❌ Booking Confirmation Error:", err.message);
+    res.redirect("/dashboard?error=Failed to load confirmation");
   }
 });
 
-// DJ Details Page
 router.get("/dj-details/:djName", authenticateToken, async (req, res) => {
   try {
     const djName = req.params.djName;
@@ -416,11 +473,8 @@ router.get("/dj-details/:djName", authenticateToken, async (req, res) => {
   }
 });
 
-// Profile Photo Upload Route
 router.post("/profile/photo", authenticateToken, upload.single("photo"), async (req, res) => {
   try {
-    console.log("Request body:", req.body);
-    console.log("File received:", req.file || "No file received");
     const photo = req.file ? `/images/${req.file.filename}` : null;
     if (!photo) {
       return res.json({ error: "No photo uploaded or invalid file" });

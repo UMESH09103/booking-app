@@ -8,8 +8,14 @@ async function initiatePaytmPayment(bookingId, amount, djName, userId, mobile) {
   const industryType = process.env.PAYTM_INDUSTRY_TYPE_ID || "Retail";
   const callbackUrl = process.env.PAYTM_CALLBACK_URL || "http://localhost:3000/payment-callback/";
 
+  console.log("Paytm MID:", mid);
+  console.log("Paytm Merchant Key:", merchantKey); // Debug the key
+
   if (!mid || !merchantKey) {
     throw new Error("Paytm credentials (MID or MERCHANT_KEY) are missing in environment variables");
+  }
+  if (merchantKey.length !== 16) {
+    throw new Error(`Invalid Merchant Key length: ${merchantKey.length}. Expected 16 characters.`);
   }
 
   const orderId = `ORDER_${bookingId}_${Date.now()}`;
@@ -20,11 +26,11 @@ async function initiatePaytmPayment(bookingId, amount, djName, userId, mobile) {
     industryTypeId: industryType,
     channelId: channelId,
     orderId: orderId,
-    amount: amount.toFixed(2), // Amount in INR
+    amount: amount.toFixed(2),
     callbackUrl: `${callbackUrl}${bookingId}`,
-    txnDate: new Date().toISOString().split("T")[0], // YYYY-MM-DD
+    txnDate: new Date().toISOString().split("T")[0],
     mobileNo: mobile || "9999999999",
-    email: "customer@example.com", // Optional, can be dynamic
+    email: "customer@example.com",
   };
 
   try {
@@ -35,14 +41,12 @@ async function initiatePaytmPayment(bookingId, amount, djName, userId, mobile) {
     paytmParams.checksum = checksum;
 
     console.log("Paytm Payment Initiation Params:", paytmParams);
-
-    // Return params for client-side redirect
     return {
-      url: "https://securegw-stage.paytm.in/theia/processTransaction", // Sandbox URL
+      url: "https://securegw-stage.paytm.in/theia/processTransaction",
       params: paytmParams,
     };
   } catch (err) {
-    console.error("❌ Paytm Checksum Error:", err.message);
+    console.error("❌ Paytm Checksum Error Details:", err.message);
     throw new Error("Failed to initiate Paytm payment: " + err.message);
   }
 }
