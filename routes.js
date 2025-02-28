@@ -5,12 +5,45 @@ const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
 const { initiatePaytmPayment } = require("./paytm");
+const multer = require("multer");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 const PaytmChecksum = require("paytmchecksum");
 
 const router = express.Router();
 
-// Use Multer instance from app.js
-const { upload, uploadFields } = require("./app");
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: "dceppiv8w",
+  api_key: "512776949379832",
+  api_secret: "LhdddDrxUsgy2_HoHdUbqZ346BA",
+});
+
+// Multer Configuration with Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "dj-booking-images",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+  },
+});
+const upload = multer({
+  storage,
+  limits: { fileSize: 1024 * 1024 * 5 },
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/)) {
+      console.error("❌ File rejected:", file.originalname, "Unsupported type");
+      return cb(new Error("Only image files (jpg, jpeg, png, webp) are allowed!"), false);
+    }
+    console.log("✅ File accepted:", file.originalname);
+    cb(null, true);
+  },
+});
+
+const uploadFields = upload.fields([
+  { name: "photo", maxCount: 1 },
+  { name: "ownerPhoto", maxCount: 1 },
+]);
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
