@@ -88,6 +88,9 @@
             width: 100%;
             max-width: 500px;
             transition: border-color 0.3s ease, transform 0.3s ease;
+            cursor: text; /* Ensure cursor is visible */
+            outline: none; /* Remove default outline if interfering */
+            z-index: 20; /* Ensure it’s above other elements */
         }
         .search-bar:focus {
             border-color: #38bdf8;
@@ -147,12 +150,17 @@
             const searchInput = document.getElementById("searchInput");
             const djCards = document.querySelectorAll(".dj-card");
 
-            if (searchInput && djCards) {
+            console.log("Search Input:", searchInput); // Debug log
+            console.log("DJ Cards:", djCards); // Debug log
+
+            if (searchInput && djCards.length > 0) {
                 searchInput.addEventListener("input", function() {
                     const searchTerm = searchInput.value.toLowerCase().trim();
+                    console.log("Search Term:", searchTerm); // Debug log
 
                     djCards.forEach(card => {
                         const djName = card.querySelector("h3")?.textContent.toLowerCase() || "";
+                        console.log("DJ Name:", djName); // Debug log
                         if (djName.includes(searchTerm)) {
                             card.style.display = "block";
                         } else {
@@ -163,6 +171,9 @@
 
                 // Ensure the input is focusable and not obscured by animations
                 searchInput.focus();
+                searchInput.classList.add("cursor-text"); // Ensure cursor is visible
+            } else {
+                console.error("Search input or DJ cards not found in DOM");
             }
         });
     </script>

@@ -4,8 +4,9 @@ const jwt = require("jsonwebtoken");
 const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
-const { initiatePhonePePayment } = require("./phonepe");
+const { initiatePaytmPayment } = require("./paytm"); // Updated to use Paytm
 const multer = require("multer");
+
 const router = express.Router();
 
 // Multer Configuration
@@ -200,7 +201,6 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   const ownerPhoto = req.files && req.files["ownerPhoto"] ? `/images/${req.files["ownerPhoto"][0].filename}` : null;
 
   try {
-    // Enhanced validation
     if (!name || !genre || !experience || !price || !sinceYear || !ownerName || !mobile || !address) {
       return res.render("add-dj", {
         error: "All fields except photo, owner photo, next available dates, and restrictions are required!",
@@ -220,13 +220,11 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
       return res.render("add-dj", { error: "Since Year must be a valid year!", message: null });
     }
 
-    // Check for duplicate DJ name
     const existingDJ = await DJ.findOne({ name });
     if (existingDJ) {
       return res.render("add-dj", { error: "DJ with this name already exists!", message: null });
     }
 
-    // Parse nextAvailableDates if provided
     let parsedDates = [];
     if (nextAvailableDates) {
       parsedDates = nextAvailableDates.split(",").map((date) => new Date(date.trim()));
@@ -252,12 +250,10 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
     });
 
     await dj.save();
-
-    // Render success page with client-side redirect
     res.render("add-dj", {
       error: null,
       message: "DJ added successfully! You will be redirected to the dashboard in 2 seconds...",
-      redirect: true, // Pass a flag to indicate redirect
+      redirect: true,
     });
   } catch (err) {
     console.error("❌ Add DJ Error:", err.message);
@@ -271,7 +267,7 @@ router.get("/book/:djName", authenticateToken, (req, res) => {
   res.render("book", { djName, error: null, message: null });
 });
 
-// Handle Booking Submission (POST)
+// Handle Booking Submission (POST) - Updated to use Paytm
 router.post("/book/:djName", authenticateToken, upload.single("photo"), async (req, res) => {
   const djName = req.params.djName;
   const { fullName, address, mobile, date, time, location, aadhaar, notes } = req.body;
@@ -308,9 +304,8 @@ router.post("/book/:djName", authenticateToken, upload.single("photo"), async (r
       return res.render("book", { djName, error: "DJ not found", message: null });
     }
 
-    const paymentUrl = await initiatePhonePePayment(savedBooking._id, dj.price, req.user.id, mobile);
-    console.log("Redirecting to PhonePe URL:", paymentUrl);
-    res.redirect(paymentUrl);
+    const paytmDetails = await initiatePaytmPayment(savedBooking._id, dj.price, djName, req.user.id, mobile);
+    res.render("paytm-checkout", { paytmDetails, bookingId: savedBooking._id, djName });
   } catch (err) {
     console.error("❌ Booking or Payment Error:", err.message);
     res.render("book", { djName, error: "Failed to initiate payment. Try again.", message: null });
@@ -336,7 +331,7 @@ router.get("/payment/:bookingId", authenticateToken, async (req, res) => {
   }
 });
 
-// Handle Payment Submission (POST) - Mock implementation
+// Handle Payment Submission (POST) - Mock implementation (unchanged)
 router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
   const { bookingId } = req.params;
   const { paymentMethod, cardNumber, expiry, cvv, upiId, bank } = req.body;
@@ -378,17 +373,24 @@ router.post("/payment/:bookingId", authenticateToken, async (req, res) => {
   }
 });
 
-// Payment Callback Route
+// Payment Callback Route - Updated for Paytm
 router.get("/payment-callback/:bookingId", async (req, res) => {
   const { bookingId } = req.params;
+  const { STATUS } = req.query; // Paytm sends STATUS=TXN_SUCCESS on success
+
   try {
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return res.render("payment", { success: false, djName: "", amount: 0, bookingId });
     }
-    console.log("Payment callback for booking:", bookingId);
     const dj = await DJ.findOne({ name: booking.djName });
-    res.render("payment", { success: true, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
+    if (STATUS === "TXN_SUCCESS") {
+      console.log("Payment successful for booking:", bookingId);
+      res.render("payment", { success: true, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
+    } else {
+      console.log("Payment failed or cancelled for booking:", bookingId, "Status:", STATUS);
+      res.render("payment", { success: false, djName: booking.djName, amount: dj ? dj.price : 0, bookingId });
+    }
   } catch (err) {
     console.error("❌ Payment Callback Error:", err.message);
     res.render("payment", { success: false, djName: "", amount: 0, bookingId });

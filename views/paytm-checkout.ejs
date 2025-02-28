@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paytm Payment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background-color: rgba(0, 0, 0, 0.6);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="overlay flex flex-col min-h-screen">
+        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg text-center">
+                <h2 class="text-2xl font-bold text-blue-300 mb-4">Complete Payment for <%= djName %></h2>
+                <p class="text-gray-400 mb-6">Booking ID: <%= bookingId %></p>
+                <form id="paytmForm" method="POST" action="<%= paytmDetails.url %>">
+                    <% for (let key in paytmDetails.params) { %>
+                        <input type="hidden" name="<%= key %>" value="<%= paytmDetails.params[key] %>">
+                    <% } %>
+                    <button type="submit" class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">Pay Now</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-submit the form on page load
+        document.getElementById("paytmForm").submit();
+    </script>
+</body>
+</html>

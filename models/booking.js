@@ -10,8 +10,13 @@ const bookingSchema = new mongoose.Schema({
   time: { type: String, required: true },
   location: { type: String, required: true },
   aadhaar: { type: String, required: true },
-  photo: { type: String }, // URL to uploaded photo
-  notes: { type: String }
+  photo: { type: String },
+  notes: { type: String },
+  paymentStatus: {
+    type: String,
+    default: "pending",
+    enum: ["pending", "paid", "failed"],
+  },
 });
 
 module.exports = mongoose.model("Booking", bookingSchema);
