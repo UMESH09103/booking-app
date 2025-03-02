@@ -238,7 +238,7 @@
                                 <div class="flex space-x-4 flex-wrap">
                                     <a href="/book/<%= dj.name %>" class="pulse-btn flex-1">Book Now</a>
                                     <a href="/dj-details/<%= dj.name %>" class="pulse-btn flex-1">View Details</a>
-                                    <% if (dj.addedBy.toString() === user.id || user.role === "admin") { %>
+                                    <% if (user.role === "admin" && dj.addedBy.toString() === user.id) { %>
                                         <a href="/edit-dj/<%= dj.name %>" class="pulse-btn flex-1 bg-yellow-500 hover:bg-yellow-600 mt-2">Edit</a>
                                         <form action="/delete-dj/<%= dj.name %>" method="POST" class="flex-1 mt-2">
                                             <button type="submit" class="pulse-btn w-full bg-red-500 hover:bg-red-600">Delete</button>

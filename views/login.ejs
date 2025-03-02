@@ -7,36 +7,55 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
     <style>
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+        }
         body {
             background-image: url('https://images8.alphacoders.com/374/thumb-1920-374816.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
             background-attachment: fixed;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .overlay {
-            background-color: rgba(0, 0, 0, 0.6);
+            background-color: rgba(0, 0, 0, 0.7);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             min-height: 100vh;
+            overflow-y: auto;
         }
         .header-gradient {
             background: linear-gradient(to right, #0d9488, #6b7280);
             border-bottom: 2px solid rgba(255, 255, 255, 0.1);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 20;
         }
         .login-container {
-            background: linear-gradient(135deg, rgba(45, 55, 72, 0.9), rgba(26, 32, 44, 0.9));
+            background: rgba(45, 55, 72, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 1.5rem;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             backdrop-filter: blur(10px);
+            max-width: 24rem;
+            width: 100%;
+            margin: auto;
         }
         .login-container:hover {
             transform: translateY(-10px);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
         }
         .input-field {
-            background: rgba(45, 55, 72, 0.8);
+            background: rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 0.75rem;
             padding: 0.875rem 1rem;
@@ -48,7 +67,7 @@
             border-color: #38bdf8;
             outline: none;
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-            background: rgba(66, 153, 225, 0.1);
+            background: rgba(66, 153, 225, 0.2);
         }
         .submit-btn {
             background: linear-gradient(to right, #3b82f6, #1d4ed8);
@@ -100,39 +119,27 @@
             0% { opacity: 0.3; }
             100% { opacity: 0.7; }
         }
+        main {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 1.5rem;
+        }
         @media (max-width: 640px) {
             .login-container {
                 max-width: 90%;
-                margin: 0 auto;
             }
             .attractive-heading {
                 font-size: 2rem;
             }
         }
     </style>
-    <script>
-        particlesJS("particles-js", {
-            "particles": {
-                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
-                "color": { "value": "#38bdf8" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5, "random": true },
-                "size": { "value": 3, "random": true },
-                "line_linked": { "enable": true, "distance": 150, "color": "#38bdf8", "opacity": 0.4, "width": 1 },
-                "move": { "enable": true, "speed": 2, "direction": "none", "random": true, "straight": false, "out_mode": "out" }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" } },
-                "modes": { "repulse": { "distance": 100, "duration": 0.4 } }
-            },
-            "retina_detect": true
-        });
-    </script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen">
-    <div class="overlay flex flex-col min-h-screen">
-        <header class="header-gradient p-4 sticky top-0 z-10">
+    <div class="overlay">
+        <header class="header-gradient p-4">
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="attractive-heading">🎧 Login to DJ Booking</h1>
                 <div class="flex items-center space-x-4">
@@ -141,9 +148,9 @@
             </div>
         </header>
 
-        <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
-            <div class="relative w-full max-w-lg login-container p-8">
-                <div id="particles-js"></div>
+        <main>
+            <div id="particles-js"></div>
+            <div class="relative login-container p-8 z-10">
                 <h2 class="text-2xl font-bold text-center mb-6 text-blue-300 relative z-10">Sign In</h2>
                 <% if (message) { %>
                     <p class="text-green-500 text-center mb-4 animate-pulse relative z-10"><%= message %></p>
@@ -195,5 +202,89 @@
             <p class="text-sm">© 2025 DJ Booking Service | <a href="#" class="text-blue-400 hover:underline">Contact Us</a></p>
         </footer>
     </div>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { 
+                    "value": 150,
+                    "density": { 
+                        "enable": true, 
+                        "value_area": 1000 
+                    } 
+                },
+                "color": { 
+                    "value": ["#ff6f61", "#38bdf8", "#ffffff", "#facc15"]
+                },
+                "shape": { 
+                    "type": "star",
+                    "stroke": { 
+                        "width": 0 
+                    }, 
+                    "polygon": { 
+                        "nb_sides": 5 
+                    } 
+                },
+                "opacity": { 
+                    "value": 0.8, 
+                    "random": true, 
+                    "anim": { 
+                        "enable": true, 
+                        "speed": 1, 
+                        "opacity_min": 0.3, 
+                        "sync": false 
+                    } 
+                },
+                "size": { 
+                    "value": 2,
+                    "random": true, 
+                    "anim": { 
+                        "enable": true, 
+                        "speed": 2, 
+                        "size_min": 0.5, 
+                        "sync": false 
+                    } 
+                },
+                "line_linked": { 
+                    "enable": false
+                },
+                "move": { 
+                    "enable": true, 
+                    "speed": 3,
+                    "direction": "none", 
+                    "random": true, 
+                    "straight": false, 
+                    "out_mode": "out", 
+                    "bounce": false, 
+                    "attract": { 
+                        "enable": false 
+                    } 
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": { 
+                    "onhover": { 
+                        "enable": true, 
+                        "mode": "repulse"
+                    }, 
+                    "onclick": { 
+                        "enable": true, 
+                        "mode": "push"
+                    }, 
+                    "resize": true 
+                },
+                "modes": { 
+                    "repulse": { 
+                        "distance": 100, 
+                        "duration": 0.4 
+                    }, 
+                    "push": { 
+                        "particles_nb": 4 
+                    } 
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
 </body>
 </html>

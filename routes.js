@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 const User = require("./models/user");
 const Booking = require("./models/booking");
 const DJ = require("./models/dj");
@@ -44,6 +45,15 @@ const uploadFields = upload.fields([
   { name: "photo", maxCount: 1 },
   { name: "ownerPhoto", maxCount: 1 },
 ]);
+
+// Nodemailer Configuration
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
 function authenticateToken(req, res, next) {
   const token = req.cookies.token;
@@ -94,7 +104,6 @@ router.post("/register", async (req, res) => {
     }
     const hash = await bcrypt.hash(password, 10);
     await User.create({ username, email, password: hash, age, role: role || "user" });
-    // Redirect to login page directly after successful registration
     res.redirect("/login?message=Account created successfully! Please log in.");
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
@@ -129,6 +138,74 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     console.error("❌ Login Error:", err.message);
     res.render("login", { error: "Internal server error", message: null });
+  }
+});
+
+// Forgot Password Routes
+router.get("/forgot-password", (req, res) => {
+  res.render("forgot-password", { error: null, message: null });
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.render("forgot-password", { error: "No user found with this email", message: null });
+    }
+
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const resetLink = `http://localhost:3000/reset-password/${resetToken}`; // Update for Render in production
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset Request",
+      html: `
+        <p>You requested a password reset for your DJ Booking account.</p>
+        <p>Click <a href="${resetLink}">here</a> to reset your password. This link expires in 1 hour.</p>
+        <p>If you didn’t request this, ignore this email.</p>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    res.render("forgot-password", { error: null, message: "Password reset link sent to your email!" });
+  } catch (err) {
+    console.error("❌ Forgot Password Error:", err.message);
+    res.render("forgot-password", { error: "Failed to send reset link. Try again.", message: null });
+  }
+});
+
+router.get("/reset-password/:token", (req, res) => {
+  const { token } = req.params;
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+    res.render("reset-password", { token, error: null, message: null });
+  } catch (err) {
+    console.error("❌ Reset Token Error:", err.message);
+    res.render("login", { error: "Invalid or expired reset link", message: null });
+  }
+});
+
+router.post("/reset-password/:token", async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.render("reset-password", { token, error: "User not found", message: null });
+    }
+    if (password.length < 6) {
+      return res.render("reset-password", { token, error: "Password must be at least 6 characters!", message: null });
+    }
+    const hash = await bcrypt.hash(password, 10);
+    user.password = hash;
+    await user.save();
+    res.redirect("/login?message=Password reset successfully! Please log in.");
+  } catch (err) {
+    console.error("❌ Reset Password Error:", err.message);
+    res.render("reset-password", { token, error: "Invalid or expired reset link", message: null });
   }
 });
 
@@ -231,12 +308,18 @@ router.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-// Add DJ (accessible to all authenticated users)
+// Add DJ (accessible to admins only)
 router.get("/add-dj", authenticateToken, (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.redirect("/dashboard?error=Unauthorized access");
+  }
   res.render("add-dj", { error: null, message: null });
 });
 
 router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
+  if (req.user.role !== "admin") {
+    return res.redirect("/dashboard?error=Unauthorized access");
+  }
   const {
     name,
     genre,
@@ -314,7 +397,7 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   }
 });
 
-// Edit DJ (accessible to the user who added it or admins)
+// Edit DJ (accessible only to the admin who added it)
 router.get("/edit-dj/:djName", authenticateToken, async (req, res) => {
   const djName = req.params.djName;
   try {
@@ -322,7 +405,7 @@ router.get("/edit-dj/:djName", authenticateToken, async (req, res) => {
     if (!dj) {
       return res.redirect("/dashboard?error=DJ not found");
     }
-    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (req.user.role !== "admin" || dj.addedBy.toString() !== req.user.id) {
       return res.redirect("/dashboard?error=Unauthorized to edit this DJ");
     }
     res.render("edit-dj", { dj, error: null, message: null });
@@ -355,7 +438,7 @@ router.post("/edit-dj/:djName", authenticateToken, uploadFields, async (req, res
     if (!dj) {
       return res.redirect("/dashboard?error=DJ not found");
     }
-    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (req.user.role !== "admin" || dj.addedBy.toString() !== req.user.id) {
       return res.redirect("/dashboard?error=Unauthorized to edit this DJ");
     }
 
@@ -414,7 +497,7 @@ router.post("/edit-dj/:djName", authenticateToken, uploadFields, async (req, res
   }
 });
 
-// Delete DJ (accessible to the user who added it or admins)
+// Delete DJ (accessible only to the admin who added it)
 router.post("/delete-dj/:djName", authenticateToken, async (req, res) => {
   const djName = req.params.djName;
   try {
@@ -422,7 +505,7 @@ router.post("/delete-dj/:djName", authenticateToken, async (req, res) => {
     if (!dj) {
       return res.redirect("/dashboard?error=DJ not found");
     }
-    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+    if (req.user.role !== "admin" || dj.addedBy.toString() !== req.user.id) {
       return res.redirect("/dashboard?error=Unauthorized to delete this DJ");
     }
 
