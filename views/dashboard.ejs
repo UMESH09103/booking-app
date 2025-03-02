@@ -6,11 +6,11 @@
     <title>Dashboard - DJ Booking</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"> <!-- New font: Poppins -->
-    <link rel="stylesheet" href="/css/dashboard-cards.css"> <!-- Link to new CSS file -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/dashboard-cards.css">
     <style>
         html {
-            scroll-behavior: smooth; /* Enables smooth scrolling */
+            scroll-behavior: smooth;
             height: 100%;
         }
         body {
@@ -24,7 +24,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            font-family: 'Poppins', sans-serif; /* New font for all text */
+            font-family: 'Poppins', sans-serif;
         }
         .overlay {
             background-color: rgba(0, 0, 0, 0.6);
@@ -46,8 +46,8 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* Enable vertical scrolling */
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .dashboard-content {
             z-index: 10;
@@ -62,7 +62,7 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            pointer-events: none; /* Prevents particles from interfering with scrolling */
+            pointer-events: none;
         }
         .attractive-heading {
             background: linear-gradient(to right, #38bdf8, #ffffff);
@@ -70,7 +70,7 @@
             background-clip: text;
             color: transparent;
             font-size: 3.5rem;
-            font-weight: 600; /* Match Poppins font weight */
+            font-weight: 600;
             text-shadow: 0 6px 15px rgba(56, 189, 248, 0.5);
             animation: fadeInBounce 2s ease-in-out;
         }
@@ -88,9 +88,9 @@
             width: 100%;
             max-width: 500px;
             transition: border-color 0.3s ease, transform 0.3s ease;
-            cursor: text; /* Ensure cursor is visible */
-            outline: none; /* Remove default outline if interfering */
-            z-index: 20; /* Ensure it’s above other elements */
+            cursor: text;
+            outline: none;
+            z-index: 20;
         }
         .search-bar:focus {
             border-color: #38bdf8;
@@ -105,14 +105,14 @@
             transition: all 0.3s ease;
             padding: 0.75rem 1.5rem;
             font-size: 1rem;
-            font-weight: 600; /* Match Poppins font weight */
-            animation: pulseAnimation 2s infinite ease-in-out; /* Subtle pulsing animation for buttons */
-            font-family: 'Poppins', sans-serif; /* Apply new font */
+            font-weight: 600;
+            animation: pulseAnimation 2s infinite ease-in-out;
+            font-family: 'Poppins', sans-serif;
         }
         .pulse-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 10px 30px rgba(59, 130, 246, 0.8);
-            animation: none; /* Stop pulsing on hover */
+            animation: none;
         }
         @keyframes pulseAnimation {
             0% { transform: scale(1); box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
@@ -124,10 +124,53 @@
             padding: 1.5rem;
             text-align: center;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            font-family: 'Poppins', sans-serif; /* Apply new font */
+            font-family: 'Poppins', sans-serif;
         }
     </style>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const searchInput = document.getElementById("searchInput");
+            const djCards = document.querySelectorAll(".dj-card");
+
+            console.log("Search Input Found:", searchInput);
+            console.log("DJ Cards Found:", djCards.length);
+
+            if (!searchInput) {
+                console.error("Search input element not found");
+                return;
+            }
+            if (djCards.length === 0) {
+                console.error("No DJ cards found in DOM");
+                return;
+            }
+
+            searchInput.addEventListener("input", function() {
+                const searchTerm = searchInput.value.toLowerCase().trim();
+                console.log("Current Search Term:", searchTerm);
+
+                djCards.forEach(card => {
+                    const djNameElement = card.querySelector("h3");
+                    if (!djNameElement) {
+                        console.error("No h3 element found in card:", card);
+                        return;
+                    }
+                    const djName = djNameElement.textContent.toLowerCase();
+                    console.log("Checking DJ Name:", djName);
+
+                    if (djName.includes(searchTerm)) {
+                        card.style.display = "block";
+                        console.log(`Showing card for ${djName}`);
+                    } else {
+                        card.style.display = "none";
+                        console.log(`Hiding card for ${djName}`);
+                    }
+                });
+            });
+
+            searchInput.focus();
+            searchInput.classList.add("cursor-text");
+        });
+
         particlesJS("particles-js", {
             "particles": {
                 "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
@@ -145,37 +188,6 @@
             },
             "retina_detect": true
         });
-
-        document.addEventListener("DOMContentLoaded", function() {
-            const searchInput = document.getElementById("searchInput");
-            const djCards = document.querySelectorAll(".dj-card");
-
-            console.log("Search Input:", searchInput); // Debug log
-            console.log("DJ Cards:", djCards); // Debug log
-
-            if (searchInput && djCards.length > 0) {
-                searchInput.addEventListener("input", function() {
-                    const searchTerm = searchInput.value.toLowerCase().trim();
-                    console.log("Search Term:", searchTerm); // Debug log
-
-                    djCards.forEach(card => {
-                        const djName = card.querySelector("h3")?.textContent.toLowerCase() || "";
-                        console.log("DJ Name:", djName); // Debug log
-                        if (djName.includes(searchTerm)) {
-                            card.style.display = "block";
-                        } else {
-                            card.style.display = "none";
-                        }
-                    });
-                });
-
-                // Ensure the input is focusable and not obscured by animations
-                searchInput.focus();
-                searchInput.classList.add("cursor-text"); // Ensure cursor is visible
-            } else {
-                console.error("Search input or DJ cards not found in DOM");
-            }
-        });
     </script>
 </head>
 <body class="bg-gray-900 text-white">
@@ -184,7 +196,7 @@
             <div class="container mx-auto flex justify-between items-center">
                 <h1 class="attractive-heading">🎧 DJ Booking Dashboard</h1>
                 <div class="flex items-center space-x-4">
-                    <% if (user && user.role === "admin") { %>
+                    <% if (user.role === "admin") { %>
                         <a href="/add-dj" class="pulse-btn">Add DJ</a>
                     <% } %>
                     <a href="/profile" class="pulse-btn">Profile</a>
@@ -201,6 +213,9 @@
             <div class="container mx-auto dashboard-content">
                 <% if (error) { %>
                     <p class="text-red-500 text-center mb-6 text-xl animate-pulse"><%= error %></p>
+                <% } %>
+                <% if (message) { %>
+                    <p class="text-green-500 text-center mb-6 text-xl"><%= message %></p>
                 <% } %>
                 
                 <div class="mb-8 flex justify-center">
@@ -220,9 +235,15 @@
                                 <h3 class="text-xl font-semibold text-blue-300 mb-2"><%= dj.name %></h3>
                                 <p class="text-gray-400 mb-2">Genre: <span class="text-teal-300"><%= dj.genre %></span></p>
                                 <p class="text-gray-400 mb-4">Price: ₹<span class="text-purple-300"><%= dj.price %></span></p>
-                                <div class="flex space-x-4">
+                                <div class="flex space-x-4 flex-wrap">
                                     <a href="/book/<%= dj.name %>" class="pulse-btn flex-1">Book Now</a>
                                     <a href="/dj-details/<%= dj.name %>" class="pulse-btn flex-1">View Details</a>
+                                    <% if (dj.addedBy.toString() === user.id || user.role === "admin") { %>
+                                        <a href="/edit-dj/<%= dj.name %>" class="pulse-btn flex-1 bg-yellow-500 hover:bg-yellow-600 mt-2">Edit</a>
+                                        <form action="/delete-dj/<%= dj.name %>" method="POST" class="flex-1 mt-2">
+                                            <button type="submit" class="pulse-btn w-full bg-red-500 hover:bg-red-600">Delete</button>
+                                        </form>
+                                    <% } %>
                                 </div>
                             </div>
                         <% }) %>

@@ -94,7 +94,8 @@ router.post("/register", async (req, res) => {
     }
     const hash = await bcrypt.hash(password, 10);
     await User.create({ username, email, password: hash, age, role: role || "user" });
-    res.render("register", { error: null, message: "Account created successfully! Redirecting to login..." });
+    // Redirect to login page directly after successful registration
+    res.redirect("/login?message=Account created successfully! Please log in.");
   } catch (err) {
     console.error("❌ Registration Error:", err.message);
     res.render("register", { error: "Internal server error", message: null });
@@ -102,7 +103,7 @@ router.post("/register", async (req, res) => {
 });
 
 router.get("/login", (req, res) => {
-  res.render("login", { message: null, error: null });
+  res.render("login", { message: req.query.message || null, error: null });
 });
 
 router.post("/login", async (req, res) => {
@@ -134,10 +135,20 @@ router.post("/login", async (req, res) => {
 router.get("/dashboard", authenticateToken, async (req, res) => {
   try {
     const djs = await DJ.find();
-    res.render("dashboard", { user: req.user, djs, error: null });
+    res.render("dashboard", { 
+      user: req.user, 
+      djs, 
+      error: null, 
+      message: req.query.message || null 
+    });
   } catch (err) {
     console.error("❌ Dashboard Error:", err.message);
-    res.render("dashboard", { user: req.user, djs: [], error: "Failed to load DJs" });
+    res.render("dashboard", { 
+      user: req.user, 
+      djs: [], 
+      error: "Failed to load DJs", 
+      message: null 
+    });
   }
 });
 
@@ -220,18 +231,12 @@ router.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
+// Add DJ (accessible to all authenticated users)
 router.get("/add-dj", authenticateToken, (req, res) => {
-  if (req.user.role !== "admin") {
-    return res.redirect("/dashboard?error=Unauthorized access");
-  }
   res.render("add-dj", { error: null, message: null });
 });
 
 router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
-  if (req.user.role !== "admin") {
-    return res.redirect("/dashboard?error=Unauthorized access");
-  }
-
   const {
     name,
     genre,
@@ -306,6 +311,126 @@ router.post("/add-dj", authenticateToken, uploadFields, async (req, res) => {
   } catch (err) {
     console.error("❌ Add DJ Error:", err.message);
     res.render("add-dj", { error: `Failed to add DJ: ${err.message}`, message: null });
+  }
+});
+
+// Edit DJ (accessible to the user who added it or admins)
+router.get("/edit-dj/:djName", authenticateToken, async (req, res) => {
+  const djName = req.params.djName;
+  try {
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.redirect("/dashboard?error=DJ not found");
+    }
+    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.redirect("/dashboard?error=Unauthorized to edit this DJ");
+    }
+    res.render("edit-dj", { dj, error: null, message: null });
+  } catch (err) {
+    console.error("❌ Edit DJ Page Error:", err.message);
+    res.redirect("/dashboard?error=Failed to load edit page");
+  }
+});
+
+router.post("/edit-dj/:djName", authenticateToken, uploadFields, async (req, res) => {
+  const djName = req.params.djName;
+  const {
+    name,
+    genre,
+    experience,
+    price,
+    sinceYear,
+    nextAvailableDates,
+    ownerName,
+    mobile,
+    address,
+    restrictions,
+  } = req.body;
+
+  const photo = req.files && req.files["photo"] ? req.files["photo"][0].path : null;
+  const ownerPhoto = req.files && req.files["ownerPhoto"] ? req.files["ownerPhoto"][0].path : null;
+
+  try {
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.redirect("/dashboard?error=DJ not found");
+    }
+    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.redirect("/dashboard?error=Unauthorized to edit this DJ");
+    }
+
+    if (!name || !genre || !experience || !price || !sinceYear || !ownerName || !mobile || !address) {
+      return res.render("edit-dj", {
+        dj,
+        error: "All fields except photo, owner photo, next available dates, and restrictions are required!",
+        message: null,
+      });
+    }
+    if (!/^\d{10}$/.test(mobile)) {
+      return res.render("edit-dj", { dj, error: "Mobile number must be 10 digits!", message: null });
+    }
+    if (isNaN(experience) || experience < 0) {
+      return res.render("edit-dj", { dj, error: "Experience must be a positive number!", message: null });
+    }
+    if (isNaN(price) || price <= 0) {
+      return res.render("edit-dj", { dj, error: "Price must be a positive number!", message: null });
+    }
+    if (isNaN(sinceYear) || sinceYear < 1900 || sinceYear > new Date().getFullYear()) {
+      return res.render("edit-dj", { dj, error: "Since Year must be a valid year!", message: null });
+    }
+
+    let parsedDates = [];
+    if (nextAvailableDates) {
+      parsedDates = nextAvailableDates.split(",").map((date) => new Date(date.trim()));
+      if (parsedDates.some((date) => isNaN(date.getTime()))) {
+        return res.render("edit-dj", { dj, error: "Invalid date format in Next Available Dates!", message: null });
+      }
+    }
+
+    dj.name = name;
+    dj.genre = genre;
+    dj.experience = parseInt(experience);
+    dj.price = parseInt(price);
+    dj.sinceYear = parseInt(sinceYear);
+    dj.nextAvailableDates = parsedDates.length ? parsedDates : dj.nextAvailableDates;
+    dj.ownerName = ownerName;
+    dj.mobile = mobile;
+    dj.address = address;
+    dj.restrictions = restrictions || "";
+    if (photo) dj.photo = photo;
+    if (ownerPhoto) dj.ownerPhoto = ownerPhoto;
+
+    await dj.save();
+    res.render("edit-dj", {
+      dj,
+      error: null,
+      message: "DJ updated successfully! Redirecting to dashboard in 2 seconds...",
+      redirect: true,
+    });
+  } catch (err) {
+    console.error("❌ Edit DJ Error:", err.message);
+    const dj = await DJ.findOne({ name: djName });
+    res.render("edit-dj", { dj, error: `Failed to update DJ: ${err.message}`, message: null });
+  }
+});
+
+// Delete DJ (accessible to the user who added it or admins)
+router.post("/delete-dj/:djName", authenticateToken, async (req, res) => {
+  const djName = req.params.djName;
+  try {
+    const dj = await DJ.findOne({ name: djName });
+    if (!dj) {
+      return res.redirect("/dashboard?error=DJ not found");
+    }
+    if (dj.addedBy.toString() !== req.user.id && req.user.role !== "admin") {
+      return res.redirect("/dashboard?error=Unauthorized to delete this DJ");
+    }
+
+    await DJ.deleteOne({ name: djName });
+    res.redirect("/dashboard?message=DJ deleted successfully");
+  } catch (err) {
+    console.error("❌ Delete DJ Error:", err.message);
+    res.redirect("/dashboard?error=Failed to delete DJ");
   }
 });
 
@@ -429,7 +554,7 @@ router.post("/payment-callback/:bookingId", async (req, res) => {
       booking.paymentStatus = "failed";
       await booking.save();
       console.log("❌ Payment failed for booking:", bookingId, "Status:", paytmResponse.STATUS);
-      res.render("payment", {
+      return res.render("payment", {
         success: false,
         djName: booking.djName,
         amount: dj ? dj.price : 0,

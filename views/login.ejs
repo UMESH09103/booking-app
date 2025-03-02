@@ -29,7 +29,7 @@
             border-radius: 1.5rem;
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            backdrop-filter: blur(10px); /* Frosted glass effect */
+            backdrop-filter: blur(10px);
         }
         .login-container:hover {
             transform: translateY(-10px);
@@ -76,7 +76,6 @@
             0% { opacity: 0; transform: translateY(-10px); }
             100% { opacity: 1; transform: translateY(0); }
         }
-        /* Particle Background */
         #particles-js {
             position: absolute;
             top: 0;
@@ -85,7 +84,6 @@
             height: 100%;
             z-index: 1;
         }
-        /* Glowing Accent for Form Elements */
         .login-container::before {
             content: '';
             position: absolute;
@@ -102,7 +100,6 @@
             0% { opacity: 0.3; }
             100% { opacity: 0.7; }
         }
-        /* Responsive Design */
         @media (max-width: 640px) {
             .login-container {
                 max-width: 90%;
@@ -114,7 +111,6 @@
         }
     </style>
     <script>
-        // Initialize Particle.js for background effects
         particlesJS("particles-js", {
             "particles": {
                 "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
@@ -147,14 +143,13 @@
 
         <main class="container mx-auto p-6 flex-grow flex items-center justify-center">
             <div class="relative w-full max-w-lg login-container p-8">
-                <!-- Particle Background -->
                 <div id="particles-js"></div>
-                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300">Sign In</h2>
-                <% if (error) { %>
-                    <p class="text-red-500 text-center mb-4 animate-pulse"><%= error %></p>
-                <% } %>
+                <h2 class="text-2xl font-bold text-center mb-6 text-blue-300 relative z-10">Sign In</h2>
                 <% if (message) { %>
-                    <p class="text-green-500 text-center mb-4 animate-pulse"><%= message %></p>
+                    <p class="text-green-500 text-center mb-4 animate-pulse relative z-10"><%= message %></p>
+                <% } %>
+                <% if (error) { %>
+                    <p class="text-red-500 text-center mb-4 animate-pulse relative z-10"><%= error %></p>
                 <% } %>
                 <form class="space-y-6 relative z-10" method="POST" action="/login">
                     <div>
@@ -163,7 +158,7 @@
                             id="email" 
                             name="email" 
                             type="email" 
-                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            class="input-field" 
                             placeholder="e.g., john@example.com" 
                             required
                         >
@@ -174,7 +169,7 @@
                             id="password" 
                             name="password" 
                             type="password" 
-                            class="input-field w-full px-4 py-2 border border-zinc-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400 transition" 
+                            class="input-field" 
                             placeholder="Your password" 
                             required
                         >
@@ -185,12 +180,12 @@
                     </div>
                     <button 
                         type="submit" 
-                        class="submit-btn w-full px-4 py-3 rounded-lg text-white font-semibold hover:shadow-lg"
+                        class="submit-btn w-full"
                     >
                         Login
                     </button>
                 </form>
-                <p class="text-center mt-6 text-sm text-gray-300">
+                <p class="text-center mt-6 text-sm text-gray-300 relative z-10">
                     Don't have an account? <a href="/register" class="text-blue-400 hover:underline hover:text-blue-300 transition">Register here</a>
                 </p>
             </div>
